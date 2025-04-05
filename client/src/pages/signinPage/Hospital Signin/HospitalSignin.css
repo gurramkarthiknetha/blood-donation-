@@ -1,0 +1,84 @@
+.role-card.hospital .role-icon {
+  background-color: #e6f7ee;
+}
+
+.role-card.hospital .sign-in-btn {
+  background-color: #00a86b;
+}
+
+.role-card.hospital .register-btn {
+  color: #00a86b;
+  border-color: #00a86b;
+}
+.role-card {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+  width: 250px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.role-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.role-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 15px;
+}
+
+.role-icon img {
+  width: 30px;
+  height: 30px;
+}
+
+.role-card h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.role-card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+  line-height: 1.4;
+}
+
+.button-group {
+  display: flex;
+  gap: 10px;
+}
+
+.sign-in-btn, .register-btn {
+  flex: 1;
+  padding: 8px 0;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.sign-in-btn {
+  color: white;
+  border: none;
+}
+
+.register-btn {
+  background-color: transparent;
+  border: 1px solid;
+}
+
+.sign-in-btn:hover, .register-btn:hover {
+  opacity: 0.9;
+}

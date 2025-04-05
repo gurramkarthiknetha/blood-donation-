@@ -3,7 +3,7 @@ import RootLayout from './pages/rootLayout/RootLayout'
 import Home from './pages/home/Home'
 import Donor from './pages/donor/Donor'
 import Reciever from './pages/reciever/Reciever'
-import SiginPage from './pages/signinPage/SiginPage'
+import SiginPage from './pages/signinPage/SigninPage'
 import './App.css'
 
 function App() {

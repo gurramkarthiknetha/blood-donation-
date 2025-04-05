@@ -5,6 +5,7 @@ import Donor from './pages/donor/Donor'
 import Reciever from './pages/reciever/Reciever'
 import SiginPage from './pages/signinPage/SigninPage'
 import './App.css'
+import BloodCamp from './pages/bloodCamp/BloodCamp'
 
 function App() {
   const browserRouterObj= createBrowserRouter([
@@ -27,6 +28,10 @@ function App() {
         {
           element:<SiginPage/>,
           path:'/signinPage'
+        },
+        {
+          element:<BloodCamp/>,
+          path:'/bloodCamp'
         }
       ]
     }

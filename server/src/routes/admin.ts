@@ -1,12 +1,12 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import Admin from '../models/admin';
+import Admin from '../../models/admin';
 import { authenticateToken } from '../middleware/auth';
 
 const router = express.Router();
 
 // Register new admin
-router.post('/create', async (req, res) => {
+router.post('/create', async (req: express.Request, res: express.Response) => {
   try {
     const { username, email, password, role } = req.body;
 
@@ -69,7 +69,7 @@ router.post('/login', async (req, res) => {
 router.use(authenticateToken);
 
 // Get admin profile
-router.get('/profile', async (req, res) => {
+router.get('/profile', async (req: Request & { user: { id: string } }, res: Response) => {
   try {
     const admin = await Admin.findById(req.user.id).select('-password');
     if (!admin) {

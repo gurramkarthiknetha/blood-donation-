@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import axiosInstance from '../../services/axiosConfig';
 import { toastService } from '../../services/toastService';
 import './AdminDashboard.css';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 interface BloodInventory {
   bloodType: string;
@@ -15,10 +16,28 @@ function AdminDashboard() {
     bloodType: '',
     units: 0
   });
+  const [requests, setRequests] = useState([]);
+  const [stats, setStats] = useState({
+    totalDonors: 0,
+    totalHospitals: 0,
+    pendingRequests: 0,
+    lowInventoryItems: 0
+  });
 
   useEffect(() => {
     fetchInventory();
+    loadDashboardData();
   }, []);
+
+  useWebSocket('inventory_update', (data) => {
+    setInventory(data);
+    updateStats();
+  });
+
+  useWebSocket('blood_request', (data) => {
+    setRequests(prev => [data, ...prev]);
+    updateStats();
+  });
 
   const fetchInventory = async () => {
     try {
@@ -40,6 +59,31 @@ function AdminDashboard() {
       setUpdateData({ bloodType: '', units: 0 });
     } catch (error) {
       toastService.error('Failed to update inventory');
+    }
+  };
+
+  const loadDashboardData = async () => {
+    try {
+      const [inventoryRes, requestsRes, statsRes] = await Promise.all([
+        apiService.getInventory(),
+        apiService.getAllRequests(),
+        apiService.getAdminStats()
+      ]);
+      
+      setInventory(inventoryRes.data);
+      setRequests(requestsRes.data);
+      setStats(statsRes.data);
+    } catch (error) {
+      toastService.error('Failed to load dashboard data');
+    }
+  };
+
+  const updateStats = async () => {
+    try {
+      const response = await apiService.getAdminStats();
+      setStats(response.data);
+    } catch (error) {
+      console.error('Failed to update stats:', error);
     }
   };
 

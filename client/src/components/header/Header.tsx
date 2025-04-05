@@ -6,7 +6,7 @@ function Header() {
   const navigate = useNavigate();
   const isAuthenticated = authService.isAuthenticated();
   const userRole = authService.getUserRole();
-  const user = authService.getCurrentUser();
+  const user = authService.getUser();
 
   const handleLogout = () => {
     authService.logout();
@@ -65,7 +65,7 @@ function Header() {
               </>
             ) : (
               <li className="nav-item">
-                <Link className="btn btn-outline-light" to="/signinPage">
+                <Link className="btn btn-outline-light" to="/signin">
                   Sign In
                 </Link>
               </li>

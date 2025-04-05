@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { hospitalDashboardService } from '../../services/hospitalDashboardService';
-import { wsService } from '../../services/websocketService';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { apiService } from '../../services/apiService';
 import { toastService } from '../../services/toastService';
 import BloodRequestForm from './BloodRequestForm';
 import InventoryTable from './InventoryTable';
@@ -33,28 +33,28 @@ const Reciever = () => {
 
   useEffect(() => {
     loadDashboardData();
-    setupWebSocket();
-    return () => wsService.disconnect();
   }, []);
 
-  const setupWebSocket = () => {
-    wsService.connect();
-    wsService.subscribe('inventory_update', handleInventoryUpdate);
-    wsService.subscribe('request_status', handleRequestUpdate);
-  };
+  useWebSocket('blood_request', (data) => {
+    setRequests(prev => [data, ...prev]);
+  });
+
+  useWebSocket('inventory_update', (data) => {
+    setInventory(data);
+  });
 
   const loadDashboardData = async () => {
     try {
       setLoading(true);
       const [inventoryData, requestsData, statsData] = await Promise.all([
-        hospitalDashboardService.getInventory(),
-        hospitalDashboardService.getRequests(),
-        hospitalDashboardService.getInventoryStats()
+        apiService.getInventory(),
+        apiService.getBloodRequests(),
+        apiService.getInventoryStats()
       ]);
 
-      setInventory(inventoryData);
-      setRequests(requestsData);
-      setStats(statsData);
+      setInventory(inventoryData.data);
+      setRequests(requestsData.data);
+      setStats(statsData.data);
     } catch (error: any) {
       toastService.error(error.response?.data?.message || 'Error loading dashboard data');
     } finally {
@@ -62,31 +62,9 @@ const Reciever = () => {
     }
   };
 
-  const handleInventoryUpdate = (update: any) => {
-    setInventory(prev => {
-      const index = prev.findIndex(item => item.bloodType === update.bloodType);
-      if (index === -1) return [...prev, update];
-      const newInventory = [...prev];
-      newInventory[index] = { ...newInventory[index], ...update };
-      return newInventory;
-    });
-    toastService.info(`Inventory updated for ${update.bloodType}`);
-  };
-
-  const handleRequestUpdate = (update: any) => {
-    setRequests(prev => {
-      const index = prev.findIndex(req => req.id === update.id);
-      if (index === -1) return prev;
-      const newRequests = [...prev];
-      newRequests[index] = { ...newRequests[index], ...update };
-      return newRequests;
-    });
-    toastService.info(`Request ${update.id} status updated to ${update.status}`);
-  };
-
   const handleNewRequest = async (data: { bloodType: string; quantity: number; urgency: string }) => {
     try {
-      await hospitalDashboardService.createRequest(data);
+      await apiService.createRequest(data);
       toastService.success('Blood request created successfully');
       loadDashboardData();
     } catch (error: any) {

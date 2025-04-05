@@ -1,12 +1,10 @@
-import express from 'express';
-import { login, register } from '../controllers/authController';
+import { Router } from 'express';
+import { login, registerDonor, registerHospital } from '../controllers/authController';
 
-const router = express.Router();
+const router = Router();
 
-// Login routes for all user types
+router.post('/donor/register', registerDonor);
+router.post('/hospital/register', registerHospital);
 router.post('/:role/login', login);
-
-// Registration routes (except admin)
-router.post('/:role/register', register);
 
 export default router;

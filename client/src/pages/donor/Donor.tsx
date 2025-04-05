@@ -21,6 +21,7 @@ import LastDonation from './LastDonation';
 import Notifications from './Notifications';
 import RewardsBadges from './RewardsBadges';
 import BookAppointment from './BookAppointment';
+import { useWebSocket } from '../../hooks/useWebSocket';
 
 const Donor: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -30,6 +31,13 @@ const Donor: React.FC = () => {
     points: 0,
     nextEligibleDate: null
   });
+  interface Donation {
+    id: string;
+    [key: string]: any;
+  }
+  
+  const [donations, setDonations] = useState<Donation[]>([]);
+  const [availableSlots, setAvailableSlots] = useState([]);
 
   useEffect(() => {
     loadDonorData();
@@ -42,12 +50,24 @@ const Donor: React.FC = () => {
     };
   }, []);
 
+  useWebSocket('donation_status', (data) => {
+    setDonations(prev => prev.map(donation => 
+      donation.id === data.id ? { ...donation, ...data } : donation
+    ));
+  });
+
+  useWebSocket('slot_availability', (data) => {
+    setAvailableSlots(data);
+  });
+
   const loadDonorData = async () => {
     try {
       setLoading(true);
-      const [profileData, eligibilityData] = await Promise.all([
+      const [profileData, eligibilityData, donationsRes, slotsRes] = await Promise.all([
         donorDashboardService.getDonorProfile(),
-        donorDashboardService.getEligibilityStatus()
+        donorDashboardService.getEligibilityStatus(),
+        apiService.getDonorDonations(),
+        apiService.getAvailableSlots()
       ]);
       
       setProfile(profileData);
@@ -56,6 +76,8 @@ const Donor: React.FC = () => {
         points: profileData.points || 0,
         nextEligibleDate: eligibilityData.nextEligibleDate
       });
+      setDonations(donationsRes.data);
+      setAvailableSlots(slotsRes.data);
     } catch (error: any) {
       toastService.error(error.response?.data?.message || 'Error loading donor data');
     } finally {

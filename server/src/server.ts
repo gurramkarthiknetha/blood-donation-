@@ -10,12 +10,14 @@ import { WebSocketService } from './services/websocket';
 import { InventoryMonitorService } from './services/inventoryMonitor';
 import { initializeNotificationHelpers } from './utils/notificationHelpers';
 import { deleteOldNotifications } from './controllers/notificationController';
+import { WebSocketEvents } from './utils/wsEvents';
 
 const app = express();
 const server = http.createServer(app);
 
 // Initialize services
 const wsService = new WebSocketService(server);
+WebSocketEvents.initialize(wsService);
 const inventoryMonitor = new InventoryMonitorService();
 
 initializeNotificationHelpers(wsService);
@@ -25,13 +27,20 @@ inventoryMonitor.startMonitoring(30); // Check every 30 minutes
 app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:5173',
-    process.env.ADMIN_URL || 'http://localhost:5174'
+    process.env.ADMIN_URL || 'http://localhost:5174',
+    'http://localhost:3000'
   ],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-requested-with'],
+  credentials: true,
+  maxAge: 86400 // 24 hours
 }));
+
+// Handle preflight requests
+app.options('*', cors());
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/admin', adminRoutes);

@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import Hospital from '../models/hospital';
 import Donor from '../models/donors';
 import Admin from '../models/admin';
+import { generateToken } from '../services/authService';
 
 export const login = async (req: Request, res: Response) => {
   try {
@@ -79,5 +80,46 @@ export const register = async (req: Request, res: Response) => {
     res.status(201).json({ message: 'Registration successful' });
   } catch (error) {
     res.status(500).json({ message: 'Error during registration', error });
+  }
+};
+
+export const registerDonor = async (req: Request, res: Response) => {
+  try {
+    const { email, password, fullName, bloodGroup, phoneNumber, address } = req.body;
+
+    const donor = new Donor({
+      email,
+      password,
+      fullName,
+      bloodGroup,
+      phoneNumber,
+      address,
+      points: 0
+    });
+
+    await donor.save();
+    res.status(201).json({ message: 'Donor registration successful' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering donor', error });
+  }
+};
+
+export const registerHospital = async (req: Request, res: Response) => {
+  try {
+    const { email, password, fullName, phoneNumber, address } = req.body;
+
+    const hospital = new Hospital({
+      email,
+      password,
+      name: fullName,
+      phoneNumber,
+      address,
+      bloodInventory: {}
+    });
+
+    await hospital.save();
+    res.status(201).json({ message: 'Hospital registration successful' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error registering hospital', error });
   }
 };

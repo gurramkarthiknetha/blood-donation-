@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../services/authService';
-import api from '../../config/api';
+import * as apiService from '../../services/api';
 import { toastService } from '../../services/toastService';
 import CreateEventForm from './CreateEventForm';
 import EventList from './EventList';
@@ -31,7 +31,7 @@ const BloodCamp = () => {
 
   const fetchEvents = async () => {
     try {
-      const response = await api.get('/events/upcoming');
+      const response = await apiService.get('/events/upcoming');
       setEvents(response.data);
     } catch (error: any) {
       toastService.error('Failed to fetch events');
@@ -42,7 +42,7 @@ const BloodCamp = () => {
 
   const handleCreateEvent = async (eventData: any) => {
     try {
-      await api.post('/events', eventData);
+      await apiService.post('/events', eventData);
       toastService.success('Event created successfully');
       fetchEvents();
     } catch (error: any) {
@@ -52,7 +52,7 @@ const BloodCamp = () => {
 
   const handleRegister = async (eventId: string, bloodType: string) => {
     try {
-      await api.post(`/events/${eventId}/register`, { bloodType });
+      await apiService.post(`/events/${eventId}/register`, { bloodType });
       toastService.success('Successfully registered for the event');
       fetchEvents();
     } catch (error: any) {
@@ -62,7 +62,7 @@ const BloodCamp = () => {
 
   const handleCancel = async (eventId: string, reason: string) => {
     try {
-      await api.post(`/events/${eventId}/cancel`, { reason });
+      await apiService.post(`/events/${eventId}/cancel`, { reason });
       toastService.success('Event cancelled successfully');
       fetchEvents();
     } catch (error: any) {

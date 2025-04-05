@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { toastService } from '../../services/toastService';
+import { wsService } from '../../services/websocketService';
 import './SignInPage.css';
 
 function SignInPage() {
@@ -18,24 +19,17 @@ function SignInPage() {
     setIsLoading(true);
 
     try {
-      let response;
-      switch (userType) {
-        case 'donor':
-          response = await authService.loginDonor(formData);
-          break;
-        case 'hospital':
-          response = await authService.loginHospital(formData);
-          break;
-        case 'admin':
-          response = await authService.loginAdmin(formData);
-          break;
-        default:
-          throw new Error('Invalid user type');
-      }
+      const response = await authService.login({
+        ...formData,
+        role: userType
+      });
+
+      // Initialize WebSocket connection after successful login
+      wsService.connect();
 
       toastService.success('Login successful!');
       navigate(userType === 'donor' ? '/donor' :
-              userType === 'hospital' ? '/receiver' : '/admin');
+              userType === 'hospital' ? '/hospital' : '/admin');
     } catch (error) {
       toastService.error(error.response?.data?.message || 'Login failed. Please try again.');
     } finally {

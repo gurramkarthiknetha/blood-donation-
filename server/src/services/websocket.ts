@@ -1,5 +1,7 @@
 import { Server } from 'socket.io';
-import { verifyToken } from '../utils/auth';
+import { wsAuthMiddleware } from '../middleware/wsAuth';
+import { wsErrorHandler } from '../middleware/wsErrorHandler';
+import { logger } from '../utils/logger';
 
 export class WebSocketService {
   private io: Server;
@@ -8,40 +10,51 @@ export class WebSocketService {
   constructor(server) {
     this.io = new Server(server, {
       cors: {
-        origin: ['http://localhost:5173', 'http://localhost:3000'],
+        origin: [
+          process.env.CLIENT_URL || 'http://localhost:5173',
+          process.env.ADMIN_URL || 'http://localhost:5174',
+          'http://localhost:3000'
+        ],
         credentials: true
       }
     });
 
-    this.io.use(async (socket, next) => {
-      try {
-        const token = socket.handshake.auth.token;
-        if (!token) {
-          return next(new Error('Authentication error'));
-        }
-        const user = await verifyToken(token);
-        socket.data.user = user;
-        next();
-      } catch (error) {
-        next(new Error('Authentication error'));
-      }
-    });
+    this.io.use(wsAuthMiddleware);
 
     this.io.on('connection', (socket) => {
-      const userId = socket.data.user.id;
-      this.connections.set(userId, socket);
+      try {
+        const user = socket.data.user;
+        this.connections.set(user.id, socket);
 
-      socket.on('disconnect', () => {
-        this.connections.delete(userId);
-      });
+        // Join role-specific room
+        socket.join(user.role);
+        
+        // Join user-specific room
+        socket.join(`user:${user.id}`);
+
+        // Apply error handling middleware
+        wsErrorHandler(socket);
+
+        socket.on('disconnect', () => {
+          this.connections.delete(user.id);
+          socket.leave(user.role);
+          socket.leave(`user:${user.id}`);
+          logger.info(`User ${user.id} disconnected`);
+        });
+
+      } catch (error) {
+        logger.error('Error in socket connection:', error);
+        socket.disconnect();
+      }
     });
   }
 
   notifyUser(userId: string, event: string, data: any) {
-    const socket = this.connections.get(userId);
-    if (socket) {
-      socket.emit(event, data);
-    }
+    this.io.to(`user:${userId}`).emit(event, data);
+  }
+
+  notifyRole(role: string, event: string, data: any) {
+    this.io.to(role).emit(event, data);
   }
 
   notifyAdmin(event: string, data: any) {
@@ -54,5 +67,13 @@ export class WebSocketService {
 
   notifyBloodRequest(data: any) {
     this.io.emit('blood_request', data);
+  }
+
+  emitDonationStatus(userId: string, data: any) {
+    this.notifyUser(userId, 'donation_status', data);
+  }
+
+  emitSlotAvailability(data: any) {
+    this.io.to('donor').emit('slot_availability', data);
   }
 }

@@ -2,45 +2,72 @@ import { io, Socket } from 'socket.io-client';
 
 class WebSocketService {
   private socket: Socket | null = null;
-  private notificationCallbacks: ((notification: any) => void)[] = [];
+  private subscribers: Map<string, Function[]> = new Map();
 
   connect() {
+    if (this.socket?.connected) return;
+
     const token = localStorage.getItem('token');
-    if (!token) return;
+    const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:4000';
 
-    this.socket = io(import.meta.env.VITE_WS_URL || 'http://localhost:4000', {
-      auth: { token }
+    this.socket = io(WS_URL, {
+      auth: { token },
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     });
 
-    this.socket.on('connect', () => {
-      console.log('Connected to WebSocket server');
+    this.setupEventListeners();
+  }
+
+  private setupEventListeners() {
+    if (!this.socket) return;
+
+    this.socket.on('notification', (data) => {
+      this.notifySubscribers('notification', data);
     });
 
-    this.socket.on('notification', (notification) => {
-      this.notificationCallbacks.forEach(callback => callback(notification));
+    this.socket.on('blood_request', (data) => {
+      this.notifySubscribers('blood_request', data);
     });
 
-    this.socket.on('disconnect', () => {
-      console.log('Disconnected from WebSocket server');
-    });
-
-    this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
+    this.socket.on('inventory_update', (data) => {
+      this.notifySubscribers('inventory_update', data);
     });
   }
 
-  disconnect() {
-    if (this.socket) {
-      this.socket.disconnect();
-      this.socket = null;
+  subscribe(event: string, callback: Function) {
+    if (!this.subscribers.has(event)) {
+      this.subscribers.set(event, []);
+    }
+    this.subscribers.get(event)?.push(callback);
+
+    return () => this.unsubscribe(event, callback);
+  }
+
+  private unsubscribe(event: string, callback: Function) {
+    const callbacks = this.subscribers.get(event);
+    if (callbacks) {
+      const index = callbacks.indexOf(callback);
+      if (index !== -1) {
+        callbacks.splice(index, 1);
+      }
     }
   }
 
-  onNotification(callback: (notification: any) => void) {
-    this.notificationCallbacks.push(callback);
-    return () => {
-      this.notificationCallbacks = this.notificationCallbacks.filter(cb => cb !== callback);
-    };
+  private notifySubscribers(event: string, data: any) {
+    const callbacks = this.subscribers.get(event);
+    callbacks?.forEach(callback => callback(data));
+  }
+
+  disconnect() {
+    this.socket?.disconnect();
+    this.socket = null;
+    this.subscribers.clear();
+  }
+
+  isConnected(): boolean {
+    return this.socket?.connected || false;
   }
 }
 

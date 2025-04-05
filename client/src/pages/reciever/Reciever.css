@@ -189,3 +189,50 @@
     font-size: 14px;
     margin: 0;
   }
+  
+  .hospital-dashboard {
+    padding: 2rem;
+  }
+  
+  .dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  
+  .stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+  .stat-card h3 {
+    color: #dc3545;
+    margin-bottom: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .stat-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    margin: 0;
+  }
+  
+  .dashboard-content {
+    margin-top: 2rem;
+  }
+  
+  .loading {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+  }
+  
+  .spinner-border {
+    width: 3rem;
+    height: 3rem;
+  }

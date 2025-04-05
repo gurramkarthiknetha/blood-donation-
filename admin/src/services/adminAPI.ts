@@ -1,99 +1,57 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
+const baseURL = 'http://localhost:4000/api';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000;
 
-// Configure axios defaults
-axios.defaults.withCredentials = true;
-
-// Add request interceptor to include auth token
-axios.interceptors.request.use((config) => {
-  const token = localStorage.getItem('adminToken');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
+const api = axios.create({
+  baseURL,
+  withCredentials: true,
+  timeout: 5000
 });
 
-// Add response interceptor to handle errors
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('adminToken');
-      window.location.href = '/login';
-    }
-    return Promise.reject(error);
-  }
-);
+const sleep = (ms: number | undefined) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const adminAPI = {
-  // Auth
-  register: async (data: { username: string; email: string; password: string; role: string }) => {
-    const response = await axios.post(`${API_URL}/admin/create`, data);
-    return response.data;
+  login: async (credentials: any) => {
+    let retries = 0;
+    while (retries < MAX_RETRIES) {
+      try {
+        const response = await api.post('/admin/login', credentials);
+        return response.data;
+      } catch (error) {
+        if (error.code === 'ERR_CONNECTION_RESET' && retries < MAX_RETRIES - 1) {
+          retries++;
+          await sleep(RETRY_DELAY * retries);
+          continue;
+        }
+        throw error;
+      }
+    }
   },
 
-  login: async (credentials: { username: string; password: string }) => {
-    const response = await axios.post(`${API_URL}/admin/login`, credentials);
-    return response.data;
-  },
-
-  // Dashboard
   getDashboardStats: async () => {
-    const response = await axios.get(`${API_URL}/admin/dashboard/stats`);
+    const response = await api.get('/admin/dashboard/stats');
     return response.data;
   },
 
-  getHospitalStats: async () => {
-    const response = await axios.get(`${API_URL}/admin/dashboard/hospitals`);
+  getRequests: async () => {
+    const response = await api.get('/admin/requests');
     return response.data;
   },
 
-  getDonorStats: async () => {
-    const response = await axios.get(`${API_URL}/admin/dashboard/donors`);
+  approveRequest: async (requestId: any) => {
+    const response = await api.put(`/admin/requests/${requestId}/approve`);
     return response.data;
   },
 
-  // Blood Requests
-  getAllRequests: async () => {
-    const response = await axios.get(`${API_URL}/admin/requests`);
+  rejectRequest: async (requestId: any, reason: any) => {
+    const response = await api.put(`/admin/requests/${requestId}/reject`, { reason });
     return response.data;
   },
 
-  approveRequest: async (requestId: string, hospitalId: string) => {
-    const response = await axios.put(`${API_URL}/admin/requests/${requestId}/approve`, { hospitalId });
-    return response.data;
-  },
-
-  rejectRequest: async (requestId: string, hospitalId: string, reason: string) => {
-    const response = await axios.put(`${API_URL}/admin/requests/${requestId}/reject`, { 
-      hospitalId,
-      reason 
-    });
-    return response.data;
-  },
-
-  // Hospital Management
-  getHospitals: async () => {
-    const response = await axios.get(`${API_URL}/admin/hospitals`);
-    return response.data;
-  },
-
-  manageHospital: async (hospitalId: string, updates: never) => {
-    const response = await axios.put(`${API_URL}/admin/hospitals/${hospitalId}`, updates);
-    return response.data;
-  },
-  
-  // Donor Management
-  getDonors: async () => {
-    const response = await axios.get(`${API_URL}/admin/donors`);
-    return response.data;
-  },
-
-  manageDonor: async (donorId: string, updates: never) => {
-    const response = await axios.put(`${API_URL}/admin/donors/${donorId}`, updates);
+  updateInventory: async (inventoryData: any) => {
+    const response = await api.put('/admin/inventory', inventoryData);
     return response.data;
   }
 };

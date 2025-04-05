@@ -1,28 +1,108 @@
-import DonorSignin from './Donor Signin/DonorSignin'
-import HospitalSignin from './Hospital Signin/HospitalSignin'
-import ReceiverSignin from './Receiver Signin/ReceiverSignin'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { authService } from '../../services/authService';
+import { toastService } from '../../services/toastService';
+import './SigninPage.css';
 
-import './SigninPage.css'
+function SigninPage() {
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [userType, setUserType] = useState('donor');
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
 
-const SigninPage = () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      let response;
+      switch (userType) {
+        case 'donor':
+          response = await authService.loginDonor(formData);
+          break;
+        case 'hospital':
+          response = await authService.loginHospital(formData);
+          break;
+        case 'admin':
+          response = await authService.loginAdmin(formData);
+          break;
+        default:
+          throw new Error('Invalid user type');
+      }
+
+      toastService.success('Login successful!');
+      navigate(userType === 'donor' ? '/donor' : 
+              userType === 'hospital' ? '/receiver' : '/admin');
+    } catch (error: any) {
+      toastService.error(error.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+  };
+
   return (
-    <div className="signin-page-container">
-      <div className="welcome-section">
-        <h1>Welcome Future Hero!</h1>
-        <p>Please select your role to continue</p>
-      </div>
-      
-      <div className="role-cards-container">
-        <DonorSignin />
-        <HospitalSignin />
-        <ReceiverSignin />
-      </div>
-      
-      <div className=" copyright">
-        © 2025 LifeFlow. All rights reserved.
+    <div className="signin-container">
+      <div className="signin-box">
+        <h2>Sign In</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>User Type</label>
+            <select 
+              className="form-control"
+              value={userType}
+              onChange={(e) => setUserType(e.target.value)}
+            >
+              <option value="donor">Donor</option>
+              <option value="hospital">Hospital</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              name="email"
+              className="form-control"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              className="form-control"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          
+          <button 
+            type="submit" 
+            className="btn btn-danger w-100"
+            disabled={isLoading}
+          >
+            {isLoading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </form>
       </div>
     </div>
-  )
+  );
 }
 
-export default SigninPage
+export default SigninPage;

@@ -11,11 +11,14 @@
     "setup": "npm install bootstrap react-router-dom react-icons && npm install --save-dev @vitejs/plugin-react eslint eslint-plugin-react-hooks eslint-plugin-react-refresh typescript @types/react @types/react-dom"
   },
   "dependencies": {
+    "axios": "^1.8.4",
     "bootstrap": "^5.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.5.0",
-    "react-router-dom": "^7.5.0"
+    "react-router-dom": "^7.5.0",
+    "react-toastify": "^11.0.5",
+    "socket.io-client": "^4.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

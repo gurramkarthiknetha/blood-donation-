@@ -21,9 +21,12 @@ const inventoryMonitor = new InventoryMonitorService();
 initializeNotificationHelpers(wsService);
 inventoryMonitor.startMonitoring(30); // Check every 30 minutes
 
-// Middlewares
+// Basic CORS setup
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  origin: [
+    process.env.CLIENT_URL || 'http://localhost:5173',
+    process.env.ADMIN_URL || 'http://localhost:5174'
+  ],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

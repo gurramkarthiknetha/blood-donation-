@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/authService';
 import { toastService } from '../../services/toastService';
-import './SigninPage.css';
+import './SignInPage.css';
 
-function SigninPage() {
+function SignInPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState('donor');
@@ -13,7 +13,7 @@ function SigninPage() {
     password: ''
   });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -34,16 +34,16 @@ function SigninPage() {
       }
 
       toastService.success('Login successful!');
-      navigate(userType === 'donor' ? '/donor' : 
+      navigate(userType === 'donor' ? '/donor' :
               userType === 'hospital' ? '/receiver' : '/admin');
-    } catch (error: any) {
+    } catch (error) {
       toastService.error(error.response?.data?.message || 'Login failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -52,28 +52,46 @@ function SigninPage() {
 
   return (
     <div className="signin-container">
-      <div className="signin-box">
-        <h2>Sign In</h2>
-        <form onSubmit={handleSubmit}>
+      <div className="signin-card">
+        <div className="signin-header">
+          <h1>Sign In</h1>
+          <p>Welcome back! Please login to your account</p>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="signin-form">
           <div className="form-group">
-            <label>User Type</label>
-            <select 
-              className="form-control"
-              value={userType}
-              onChange={(e) => setUserType(e.target.value)}
-            >
-              <option value="donor">Donor</option>
-              <option value="hospital">Hospital</option>
-              <option value="admin">Admin</option>
-            </select>
+            <div className="user-type-selector">
+              <button 
+                type="button"
+                className={`type-btn ${userType === 'donor' ? 'active' : ''}`}
+                onClick={() => setUserType('donor')}
+              >
+                Donor
+              </button>
+              <button 
+                type="button"
+                className={`type-btn ${userType === 'hospital' ? 'active' : ''}`}
+                onClick={() => setUserType('hospital')}
+              >
+                Hospital
+              </button>
+              <button 
+                type="button"
+                className={`type-btn ${userType === 'admin' ? 'active' : ''}`}
+                onClick={() => setUserType('admin')}
+              >
+                Admin
+              </button>
+            </div>
           </div>
           
           <div className="form-group">
-            <label>Email</label>
+            <label htmlFor="email">Email</label>
             <input
               type="email"
+              id="email"
               name="email"
-              className="form-control"
+              placeholder="Enter your email address"
               value={formData.email}
               onChange={handleChange}
               required
@@ -81,28 +99,36 @@ function SigninPage() {
           </div>
           
           <div className="form-group">
-            <label>Password</label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
+              id="password"
               name="password"
-              className="form-control"
+              placeholder="Enter your password"
               value={formData.password}
               onChange={handleChange}
               required
             />
+            <div className="forgot-password">
+              <a href="/forgot-password">Forgot password?</a>
+            </div>
           </div>
           
           <button 
-            type="submit" 
-            className="btn btn-danger w-100"
+            type="submit"
+            className="signin-btn"
             disabled={isLoading}
           >
             {isLoading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
+        
+        <div className="signin-footer">
+          <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        </div>
       </div>
     </div>
   );
 }
 
-export default SigninPage;
+export default SignInPage;

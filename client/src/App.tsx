@@ -6,6 +6,7 @@ import Reciever from './pages/reciever/Reciever'
 import SiginPage from './pages/signinPage/SigninPage'
 import './App.css'
 import BloodCamp from './pages/bloodCamp/BloodCamp'
+import ReedemPage from './pages/reedemPage/ReedemPage'
 
 function App() {
   const browserRouterObj= createBrowserRouter([
@@ -22,7 +23,7 @@ function App() {
           path:'/donor'
         },
         {
-          element:<Reciever/>,
+          element:<Reciever totalRequests={0} unitsReceived={0}/>,
           path:'/reciever'
         },
         {
@@ -32,6 +33,10 @@ function App() {
         {
           element:<BloodCamp/>,
           path:'/bloodCamp'
+        },
+        {
+          element:<ReedemPage/>,
+          path:'/reedemPage'
         }
       ]
     }

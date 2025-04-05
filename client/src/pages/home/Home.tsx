@@ -1,9 +1,14 @@
-
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Home.css';
 import { IoLocationSharp } from "react-icons/io5";
 import { FaAmbulance } from "react-icons/fa";
 import { BiCalendarCheck } from "react-icons/bi";
+import { MdPersonAdd } from "react-icons/md";
+import { GiWaterDrop } from "react-icons/gi";
+import { FaHeart } from "react-icons/fa";
+import donationImage from '../../assets/donation.png';
+import { FaHospital } from "react-icons/fa";
+
 function HomePage() {
   return (
     <div className="lifeflow-app">
@@ -102,32 +107,29 @@ function HomePage() {
               <div className="card requirement-card">
                 <div className="card-body">
                   <div className="blood-type">A+</div>
-                  <div className="badge bg-danger">Urgent</div>
                   <h5 className="req-title">City Hospital, New York</h5>
-                  <p className="req-details">Blood needed within 24 hours</p>
-                  <button className="btn btn-danger w-100">Contact Now</button>
+                  <p className="req-details">Posted 2 hours ago</p>
+                  <button className="btn btn-danger w-100">Donate Now</button>
                 </div>
               </div>
             </div>
             <div className="col-md-4 mb-4">
               <div className="card requirement-card">
                 <div className="card-body">
-                  <div className="blood-type">A+</div>
-                  <div className="badge bg-danger">Urgent</div>
-                  <h5 className="req-title">City Hospital, New York</h5>
-                  <p className="req-details">Blood needed within 24 hours</p>
-                  <button className="btn btn-danger w-100">Contact Now</button>
+                  <div className="blood-type">O-</div>
+                  <h5 className="req-title">Memorial Hospital, Chicago</h5>
+                  <p className="req-details">Posted 1 hour ago</p>
+                  <button className="btn btn-danger w-100">Donate Now</button>
                 </div>
               </div>
             </div>
             <div className="col-md-4 mb-4">
               <div className="card requirement-card">
                 <div className="card-body">
-                  <div className="blood-type">A+</div>
-                  <div className="badge bg-danger">Urgent</div>
-                  <h5 className="req-title">City Hospital, New York</h5>
-                  <p className="req-details">Blood needed within 24 hours</p>
-                  <button className="btn btn-danger w-100">Contact Now</button>
+                  <div className="blood-type">B+</div>
+                  <h5 className="req-title">General Hospital, Boston</h5>
+                  <p className="req-details">Posted 30 minutes ago</p>
+                  <button className="btn btn-danger w-100">Donate Now</button>
                 </div>
               </div>
             </div>
@@ -138,11 +140,12 @@ function HomePage() {
       {/* Learn About Donation */}
       <section className="learn-about-donation">
         <div className="container">
+          <h2 className="section-title text-bold">Learn About Donation</h2>
           <div className="row">
             <div className="col-md-6">
-              <h2 className="section-title">Learn About Donation</h2>
+              
               <div className="donation-illustration">
-                <img src="/api/placeholder/400/300" alt="Blood donation illustration" className="img-fluid" />
+                <img src={donationImage} alt="Blood donation illustration" className="img-fluid" />
               </div>
             </div>
             <div className="col-md-6">
@@ -212,38 +215,25 @@ function HomePage() {
           <div className="row">
             <div className="col-md-4 step">
               <div className="step-icon">
-                <i className="bi bi-person-plus"></i>
+              <MdPersonAdd className='me-2'/>
               </div>
               <h5>Register</h5>
               <p>Create your account to explore all the tools</p>
             </div>
             <div className="col-md-4 step">
               <div className="step-icon">
-                <i className="bi bi-droplet"></i>
+                <GiWaterDrop />
               </div>
               <h5>Donate/Request</h5>
               <p>Schedule, coordinate or request blood donation</p>
             </div>
             <div className="col-md-4 step">
               <div className="step-icon">
-                <i className="bi bi-heart"></i>
+                <FaHeart />
               </div>
               <h5>Save Lives</h5>
               <p>Make a difference in someone's life</p>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Partners */}
-      <section className="partners">
-        <div className="container">
-          <h2 className="section-title">Our Partners</h2>
-          <div className="partner-logos">
-            <img src="/api/placeholder/100/50" alt="Hospital" className="partner-logo" />
-            <img src="/api/placeholder/100/50" alt="Medical Center" className="partner-logo" />
-            <img src="/api/placeholder/100/50" alt="Blood Bank" className="partner-logo" />
-            <img src="/api/placeholder/100/50" alt="Healthcare Provider" className="partner-logo" />
           </div>
         </div>
       </section>

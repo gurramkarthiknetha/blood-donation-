@@ -6,7 +6,9 @@ function RootLayout() {
   return (
     <div>
       <Header />
-        <Outlet/>
+        <div style={{ minHeight:'90vh'}}>
+           <Outlet />
+        </div>
       <Footer />
     </div>
   )

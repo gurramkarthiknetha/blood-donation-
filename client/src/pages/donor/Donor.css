@@ -1,0 +1,193 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .header {
+    background: #fff;
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .logo {
+    color: #e63946;
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
+  
+  .nav-links a {
+    margin: 0 1rem;
+    color: #555;
+    text-decoration: none;
+  }
+  
+  .nav-links .active {
+    color: #e63946;
+    font-weight: 600;
+  }
+  
+  .profile-section {
+    display: flex;
+    align-items: center;
+  }
+  
+  .notification-icon {
+    position: relative;
+    margin-right: 1rem;
+    font-size: 1.2rem;
+  }
+  
+  .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: red;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 50%;
+  }
+  
+  .profile-pic {
+    border-radius: 50%;
+  }
+  
+  .main-content {
+    padding: 2rem;
+  }
+  
+  .welcome-section {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  
+  .highlighted-text {
+    color: #e63946;
+    font-weight: 600;
+  }
+  
+  .check-eligibility-btn {
+    margin-top: 1rem;
+    background-color: #e63946;
+    color: white;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .stats-cards {
+    display: flex;
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+  
+  .stats-card {
+    flex: 1;
+    background: #ffe5e5;
+    padding: 1rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+  
+  .icon {
+    font-size: 2rem;
+  }
+  
+  .info-grid {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .card {
+    background: #fff;
+    flex: 1;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+  
+  .input-field {
+    width: 100%;
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  .book-btn,
+  .view-history-btn,
+  .download-btn,
+  .respond-btn {
+    margin-top: 1rem;
+    background: #e63946;
+    color: white;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .badges span {
+    margin-right: 0.8rem;
+  }
+  
+  .progress-bar {
+    height: 8px;
+    background: #eee;
+    border-radius: 8px;
+    margin: 1rem 0;
+  }
+  
+  .progress {
+    height: 8px;
+    background: #e63946;
+    border-radius: 8px;
+  }
+  
+  .notification {
+    background: #ffe5e5;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+  }
+  
+  .footer {
+    background: #1a1a1a;
+    color: #ccc;
+    display: flex;
+    justify-content: space-around;
+    padding: 2rem;
+    flex-wrap: wrap;
+  }
+  
+  .footer h4 {
+    color: #fff;
+  }
+  
+  .footer-links a {
+    display: block;
+    color: #ccc;
+    margin: 0.5rem 0;
+    text-decoration: none;
+  }
+  
+  .store-icons {
+    margin-top: 1rem;
+  }
+  
+  .store-btn {
+    background: #333;
+    color: white;
+    margin: 0.5rem 0;
+    padding: 0.6rem 1rem;
+    border: none;
+    border-radius: 8px;
+  }
+  

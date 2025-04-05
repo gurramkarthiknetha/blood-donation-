@@ -16,59 +16,25 @@ class ConnectionManager {
     return ConnectionManager.instance;
   }
 
-  async connect(uri: string): Promise<void> {
-    if (this.isConnected) return;
+  async connect(): Promise<void> {
+    if (this.isConnected) {
+      return;
+    }
 
     try {
-      await mongoose.connect(uri, {
-        maxPoolSize: 10,
-        minPoolSize: 2,
-        socketTimeoutMS: 45000,
+      const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blood-donation';
+      
+      await mongoose.connect(mongoURI, {
         serverSelectionTimeoutMS: 5000,
-        keepAlive: true,
-        keepAliveInitialDelay: 300000
+        socketTimeoutMS: 45000,
+        family: 4
       });
 
-      mongoose.connection.on('connected', () => {
-        this.isConnected = true;
-        this.retryCount = 0;
-        console.log('Database connection established');
-      });
-
-      mongoose.connection.on('error', (error) => {
-        console.error('Database connection error:', error);
-        this.handleConnectionError();
-      });
-
-      mongoose.connection.on('disconnected', () => {
-        console.log('Database disconnected');
-        this.handleConnectionError();
-      });
-
+      this.isConnected = true;
+      console.log('Connected to MongoDB');
     } catch (error) {
-      console.error('Error connecting to database:', error);
-      this.handleConnectionError();
-    }
-  }
-
-  private handleConnectionError(): void {
-    this.isConnected = false;
-
-    if (this.retryCount < this.maxRetries) {
-      this.retryCount++;
-      const delay = Math.min(1000 * Math.pow(2, this.retryCount), 30000);
-
-      if (this.retryTimeout) {
-        clearTimeout(this.retryTimeout);
-      }
-
-      this.retryTimeout = setTimeout(() => {
-        console.log(`Retrying connection (attempt ${this.retryCount})`);
-        this.connect(process.env.MONGODB_URI || '');
-      }, delay);
-    } else {
-      console.error('Max connection retries reached');
-      process.exit(1);
+      console.error('MongoDB connection error:', error);
+      throw error;
     }
   }
 
@@ -93,7 +59,9 @@ class ConnectionManager {
   }
 
   getActiveConnections(): number {
-    return mongoose.connection.ActiveConnectionsCount || 0;
+    if (!mongoose.connection.readyState) return 0;
+    // readyState 1 means connected
+    return mongoose.connection.readyState === 1 ? 1 : 0;
   }
 }
 

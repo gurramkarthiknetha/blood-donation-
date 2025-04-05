@@ -1,13 +1,67 @@
+import mongoose from 'mongoose';
 import Hospital from '../models/hospital';
 import { Log } from './loggingService';
 
-interface HospitalStats {
+export interface HospitalStats {
   totalDonations: number;
   successfulRequests: number;
   averageFulfillmentTime: number;
   emergencyResponseRate: number;
   inventoryEfficiency: number;
   donorRetentionRate: number;
+}
+
+export class StatisticsService {
+  async calculateMetrics(startDate: Date, endDate: Date) {
+    const logs = await Log.find({
+      timestamp: { $gte: startDate, $lte: endDate }
+    });
+
+    const requests = logs.filter(log => 
+      log.type === 'BLOOD_REQUEST' || log.type === 'EMERGENCY_REQUEST'
+    );
+
+    const fulfillments = logs.filter(log => log.type === 'REQUEST_FULFILLED');
+    const donations = logs.filter(log => 
+      log.type === 'INVENTORY_UPDATE' && log.details?.change && log.details.change > 0
+    );
+
+    // Calculate fulfillment rate
+    const fulfilledRequests = requests.filter(req => {
+      const fulfillment = fulfillments.find(f => 
+        f.requestId && req.requestId && f.requestId.toString() === req.requestId.toString()
+      );
+      return !!fulfillment;
+    });
+
+    const fulfillmentRate = requests.length > 0
+      ? (fulfilledRequests.length / requests.length) * 100
+      : 0;
+
+    // Emergency request metrics
+    const emergencyRequests = requests.filter(r => r.urgency === 'high');
+    const fulfilledEmergencies = emergencyRequests.filter(req =>
+      fulfillments.some(f => 
+        f.requestId && req.requestId && f.requestId.toString() === req.requestId.toString()
+      )
+    );
+
+    const emergencyFulfillmentRate = emergencyRequests.length > 0
+      ? (fulfilledEmergencies.length / emergencyRequests.length) * 100
+      : 0;
+
+    // Inventory metrics
+    const inventoryUpdates = logs.filter(log => log.type === 'INVENTORY_UPDATE');
+
+    return {
+      totalRequests: requests.length,
+      fulfillmentRate,
+      emergencyRequests: emergencyRequests.length,
+      emergencyFulfillmentRate,
+      totalDonations: donations.length,
+      inventoryUpdates: inventoryUpdates.length
+    };
+  }
 }
 
 export const calculateHospitalStats = async (hospitalId: string, period: number = 30): Promise<HospitalStats> => {
@@ -24,11 +78,13 @@ export const calculateHospitalStats = async (hospitalId: string, period: number 
   );
 
   const fulfillments = logs.filter(log => log.type === 'REQUEST_FULFILLED');
-  const donations = logs.filter(log => log.type === 'INVENTORY_UPDATE' && log.details.change > 0);
+  const donations = logs.filter(log => 
+    log.type === 'INVENTORY_UPDATE' && log.details?.change && log.details.change > 0
+  );
 
   // Calculate fulfillment times
   const fulfillmentTimes = requests.map(req => {
-    const fulfillment = fulfillments.find(f => f.requestId?.equals(req.requestId));
+    const fulfillment = fulfillments.find(f => f.requestId && req.requestId && f.requestId.toString() === req.requestId.toString());
     return fulfillment ? 
       fulfillment.timestamp.getTime() - req.timestamp.getTime() : 
       null;
@@ -42,7 +98,7 @@ export const calculateHospitalStats = async (hospitalId: string, period: number 
   // Calculate emergency response rate
   const emergencyRequests = requests.filter(r => r.urgency === 'high');
   const fulfilledEmergencies = emergencyRequests.filter(req =>
-    fulfillments.some(f => f.requestId?.equals(req.requestId))
+    fulfillments.some(f => f.requestId && req.requestId && f.requestId.toString() === req.requestId.toString())
   );
   const emergencyResponseRate = emergencyRequests.length > 0 ?
     fulfilledEmergencies.length / emergencyRequests.length :
@@ -51,10 +107,10 @@ export const calculateHospitalStats = async (hospitalId: string, period: number 
   // Calculate inventory efficiency
   const inventoryUpdates = logs.filter(log => log.type === 'INVENTORY_UPDATE');
   const expiredUnits = inventoryUpdates.reduce((total, log) => 
-    total + (log.details.expired || 0), 0
+    total + (log.details?.expired || 0), 0
   );
   const totalUnits = donations.reduce((total, log) => 
-    total + log.details.change, 0
+    total + (log.details?.change || 0), 0
   );
   const inventoryEfficiency = totalUnits > 0 ?
     1 - (expiredUnits / totalUnits) :

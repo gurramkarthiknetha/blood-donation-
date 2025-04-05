@@ -82,3 +82,24 @@
 .sign-in-btn:hover, .register-btn:hover {
   opacity: 0.9;
 }
+
+form {
+  margin-top: 15px;
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #00a86b;
+  font-size: 12px;
+  margin-bottom: 10px;
+  text-align: left;
+}

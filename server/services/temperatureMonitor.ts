@@ -8,7 +8,7 @@ interface TemperatureReading {
 
 class TemperatureMonitor {
   private static instance: TemperatureMonitor;
-  private monitoringInterval: NodeJS.Timer | null = null;
+  private monitoringInterval: NodeJS.Timeout | null = null;
   private readings: Map<string, TemperatureReading[]> = new Map();
   private readonly CHECK_INTERVAL = 1000 * 60 * 5; // Check every 5 minutes
   private readonly MAX_READINGS = 288; // Store 24 hours worth of readings (288 * 5 minutes)

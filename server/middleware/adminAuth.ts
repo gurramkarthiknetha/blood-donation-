@@ -1,6 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import Admin from '../models/admin';
+import cors from 'cors';
+
+export const corsMiddleware = cors({
+  origin: process.env.ADMIN_URL || 'http://localhost:5173',
+  credentials: true
+});
 
 export const adminAuth = async (req: Request, res: Response, next: NextFunction) => {
   try {

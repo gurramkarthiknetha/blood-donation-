@@ -1,6 +1,7 @@
-import PerformanceMetrics from './performanceMetrics';
+import { PerformanceMetrics } from './performanceMetrics';
 import CacheService from './cacheService';
 import ConnectionManager from './connectionManager';
+import { type Stats } from 'fs';
 
 interface SystemMetrics {
   api: {
@@ -37,7 +38,7 @@ interface SystemMetrics {
 
 class MetricsDashboard {
   private static instance: MetricsDashboard;
-  private updateInterval: NodeJS.Timer | null = null;
+  private updateInterval: NodeJS.Timeout | null = null;
   private readonly UPDATE_INTERVAL = 10000; // 10 seconds
 
   private constructor() {}
@@ -68,7 +69,7 @@ class MetricsDashboard {
     const performanceMetrics = PerformanceMetrics.getInstance();
     const cacheService = CacheService.getInstance();
     const connectionManager = ConnectionManager.getInstance();
-    const cacheStats = cacheService.getStats();
+    const cacheStats = this.getCacheStats();
 
     // Get memory usage
     const memoryUsage = process.memoryUsage();
@@ -106,7 +107,7 @@ class MetricsDashboard {
       cache: {
         hitRate: cacheStats.hits / (cacheStats.hits + cacheStats.misses) * 100,
         missRate: cacheStats.misses / (cacheStats.hits + cacheStats.misses) * 100,
-        size: cacheStats.bytes,
+        size: cacheStats.ksize || 0, // Use ksize instead of size
         keys: cacheStats.keys
       },
       database: {
@@ -149,6 +150,17 @@ class MetricsDashboard {
     if (relevantMetrics.length === 0) return 0;
     
     return Math.max(...relevantMetrics);
+  }
+
+  private getCacheStats(): any {
+    const cacheService = CacheService.getInstance();
+    const cacheStats = cacheService.getStats();
+    return {
+      hits: cacheStats.hits,
+      misses: cacheStats.misses,
+      size: cacheStats.ksize || 0, // Use ksize instead of size
+      keys: cacheStats.keys
+    };
   }
 }
 

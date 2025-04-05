@@ -10,27 +10,33 @@ const bloodInventorySchema = new Schema({
   lastUpdated: { type: Date, default: Date.now }
 });
 
-const BloodRequestSchema = new Schema({
-  bloodType: { 
-    type: String, 
-    required: true,
-    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+const bloodRequestSchema = new Schema({
+  bloodType: {
+    type: String,
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    required: true
   },
-  quantity: { type: Number, required: true },
-  urgency: { 
-    type: String, 
+  quantity: {
+    type: Number,
     required: true,
-    enum: ['low', 'medium', 'high']
+    min: 1
   },
-  status: { 
-    type: String, 
-    required: true,
+  urgency: {
+    type: String,
+    enum: ['low', 'medium', 'high'],
+    default: 'medium'
+  },
+  status: {
+    type: String,
     enum: ['pending', 'fulfilled', 'cancelled'],
     default: 'pending'
   },
-  requestDate: { type: Date, default: Date.now },
-  fulfilledDate: { type: Date },
-  hospitalId: { type: Schema.Types.ObjectId, ref: 'Hospital', required: true }
+  requestDate: {
+    type: Date,
+    default: Date.now
+  },
+  fulfilledDate: Date,
+  cancellationReason: String
 });
 
 const hospitalSchema = new Schema({
@@ -55,7 +61,7 @@ const hospitalSchema = new Schema({
   },
   hospitalId: { type: String, required: true, unique: true },
   bloodInventory: [bloodInventorySchema],
-  bloodRequests: [BloodRequestSchema],
+  bloodRequests: [bloodRequestSchema],
   licenseNumber: { type: String, required: true, unique: true }
 }, {
   timestamps: true

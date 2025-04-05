@@ -1,71 +1,41 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import cors from 'cors';
+import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+import { handleDatabaseError, checkDatabaseConnection } from './middleware/databaseErrorHandler';
+import { monitorPerformance } from './middleware/performanceMonitor';
+
+// Routes
+import donorRoutes from './routes/donorRoutes';
+import hospitalRoutes from './routes/hospitalRoutes';
+import adminRoutes from './routes/adminRoutes';
+import donationEventRoutes from './routes/donationEventRoutes';
+
+dotenv.config();
+
 const app = express();
-const path = require('path');
-require('dotenv').config();
-const mongoose = require('mongoose');
-const cors = require('cors');
+const PORT = process.env.PORT || 4000;
 
-// Create uploads directory if it doesn't exist
-const fs = require('fs');
-if (!fs.existsSync('uploads')) {
-    fs.mkdirSync('uploads');
-}
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(monitorPerformance);
+app.use(checkDatabaseConnection);
 
-// Configure CORS
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  maxAge: 86400
-}));
+// Routes
+app.use('/api/donors', donorRoutes);
+app.use('/api/hospitals', hospitalRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/events', donationEventRoutes);
 
-// Import routes
-const donorRoutes = require('./routes/donor');
-const hospitalRoutes = require('./routes/hospital');
+// Error handling
+app.use(handleDatabaseError);
 
-interface ServerError extends Error {
-  code?: string;
-  status?: number;
-}
+// Database connection
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/blood-donation')
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
-const port = Number(process.env.PORT) || 4000;
-
-// Function to start server
-const startServer = async (initialPort: number) => {
-  try {
-    await mongoose.connect(process.env.DBURL);
-    console.log("DB connected Successfully");
-
-    const server = app.listen(initialPort, () => {
-      console.log(`Server running on port ${initialPort}`);
-    }).on('error', (err: ServerError) => {
-      if (err.code === 'EADDRINUSE') {
-        console.log(`Port ${initialPort} is busy, trying ${initialPort + 1}`);
-        startServer(initialPort + 1);
-      } else {
-        console.error('Server error:', err);
-      }
-    });
-  } catch (e) {
-    console.log("Error in connecting to DB: ", e);
-  }
-};
-
-// body parser middleware
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-
-// Use routes
-app.use('/api/donor', donorRoutes);
-app.use('/api/hospital', hospitalRoutes);
-
-// Error handler
-app.use((err: ServerError, req: Request, res: Response, next: NextFunction) => {
-    console.error("Error occurred:", err);
-    res.status(err.status || 500).json({
-        message: err.message || 'Internal Server Error'
-    });
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-startServer(port);

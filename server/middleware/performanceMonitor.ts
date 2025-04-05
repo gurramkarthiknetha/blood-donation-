@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import PerformanceMetrics from '../services/performanceMetrics';
+import { PerformanceMetrics } from '../services/performanceMetrics';
 
 export const monitorPerformance = (req: Request, res: Response, next: NextFunction) => {
   const startTime = process.hrtime();

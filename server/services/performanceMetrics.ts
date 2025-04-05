@@ -1,4 +1,4 @@
-class PerformanceMetrics {
+export class PerformanceMetrics {
   private static instance: PerformanceMetrics;
   private metrics: Map<string, number[]> = new Map();
   private readonly maxSamples: number = 1000;

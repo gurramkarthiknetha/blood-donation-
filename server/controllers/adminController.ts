@@ -155,10 +155,10 @@ export const approveBloodRequest = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Request not found' });
     }
 
-    request.status = 'approved';
+    request.status = 'fulfilled';
+    request.fulfilledDate = new Date();
     await hospital.save();
     
-    // Send notification to hospital
     await sendRequestApprovedNotification(hospitalId, request);
     
     res.json({ message: 'Request approved successfully' });
@@ -182,11 +182,10 @@ export const rejectBloodRequest = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Request not found' });
     }
 
-    request.status = 'rejected';
-    request.notes = reason;
+    request.status = 'cancelled';
+    request.cancellationReason = reason;
     await hospital.save();
     
-    // Send notification to hospital
     await sendRequestRejectedNotification(hospitalId, request, reason);
     
     res.json({ message: 'Request rejected successfully' });

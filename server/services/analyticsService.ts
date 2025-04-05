@@ -69,11 +69,12 @@ export const getDonorDistribution = async (hospitalId: string): Promise<DonorDis
   const logs = await Log.find({
     hospitalId,
     type: 'REQUEST_FULFILLED'
-  }).populate('donorId');
+  }).populate('donorId');  // Populate the donor reference to access its properties
 
   return logs.reduce((acc: DonorDistribution, log: ILog) => {
-    if (log.donorId?.bloodType) {
-      acc[log.donorId.bloodType] = (acc[log.donorId.bloodType] || 0) + 1;
+    const donor = log.donorId as any;  // Cast to any since we know it's populated
+    if (donor?.bloodType) {
+      acc[donor.bloodType] = (acc[donor.bloodType] || 0) + 1;
     }
     return acc;
   }, {});

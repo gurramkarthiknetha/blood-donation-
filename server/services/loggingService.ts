@@ -1,15 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ILog extends Document {
+  type: 'INVENTORY_UPDATE' | 'BLOOD_REQUEST' | 'EMERGENCY_REQUEST' | 'REQUEST_FULFILLED';
   hospitalId: string;
-  requestId?: string;
-  action: string;
+  requestId?: mongoose.Types.ObjectId;
   bloodType: string;
   quantity: number;
+  previousQuantity?: number;
+  urgency?: string;
   timestamp: Date;
-  details?: any;
-  donorId?: {
-    bloodType: string;
+  donorId?: mongoose.Types.ObjectId;
+  details?: {
+    change?: number;
+    notifiedDonors?: number;
     [key: string]: any;
   };
 }

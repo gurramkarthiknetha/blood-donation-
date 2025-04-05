@@ -154,34 +154,31 @@ export const updateBloodInventory = async (req: Request, res: Response) => {
 
 export const createBloodRequest = async (req: Request, res: Response) => {
   try {
-    const { hospitalId, bloodType, quantity, urgency } = req.body;
-    
+    const hospitalId = req.user?.hospitalId;
     const hospital = await Hospital.findById(hospitalId);
+    
     if (!hospital) {
       return res.status(404).json({ message: 'Hospital not found' });
     }
 
-    const request = hospital.bloodRequests.create({
-      hospitalId,
-      bloodType,
-      quantity,
-      urgency,
-      status: 'pending',
-      requestDate: new Date()
-    });
-
+    const request = hospital.bloodRequests.create(req.body);
     hospital.bloodRequests.push(request);
     await hospital.save();
+
+    // Convert mongoose document to plain object and ensure date types
+    const requestObj = {
+      ...request.toObject(),
+      hospitalId: hospital._id,
+      requestDate: new Date(request.requestDate),
+      fulfilledDate: request.fulfilledDate ? new Date(request.fulfilledDate) : undefined
+    };
     
-    await logBloodRequest(
-      hospitalId,
-      request._id.toString(),
-      bloodType,
-      quantity,
-      urgency
-    );
+    const notifiedDonors = await notifyCompatibleDonors(requestObj);
     
-    res.status(201).json(request);
+    res.status(201).json({ 
+      request: request,
+      notifiedDonors 
+    });
   } catch (error) {
     res.status(500).json({ message: 'Error creating blood request', error });
   }
@@ -268,7 +265,6 @@ export const createEmergencyRequest = async (req: Request, res: Response) => {
     }
 
     const request = hospital.bloodRequests.create({
-      hospitalId: new Types.ObjectId(hospitalId),
       bloodType,
       quantity,
       urgency: 'high',
@@ -279,7 +275,12 @@ export const createEmergencyRequest = async (req: Request, res: Response) => {
     hospital.bloodRequests.push(request);
     await hospital.save();
 
-    const notifiedDonors = await notifyCompatibleDonors(request as BloodRequest);
+    const requestWithHospital = {
+      ...request.toObject(),
+      hospitalId: hospital._id
+    };
+
+    const notifiedDonors = await notifyCompatibleDonors(requestWithHospital);
     
     await logEmergencyRequest(
       hospitalId,
@@ -307,12 +308,15 @@ export const getActiveRequests = async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Hospital not found' });
     }
 
-    const activeRequests = hospital.bloodRequests.filter(
-      req => req.status === 'pending'
-    ).sort((a, b) => 
-      calculateUrgencyScore(a as unknown as BloodRequest) - 
-      calculateUrgencyScore(b as unknown as BloodRequest)
-    );
+    const activeRequests = hospital.bloodRequests
+      .filter(req => req.status === 'pending')
+      .map(req => ({
+        ...req.toObject(),
+        hospitalId: hospital._id,
+        requestDate: new Date(req.requestDate),
+        fulfilledDate: req.fulfilledDate ? new Date(req.fulfilledDate) : undefined
+      }))
+      .sort((a, b) => calculateUrgencyScore(a) - calculateUrgencyScore(b));
 
     res.json(activeRequests);
   } catch (error) {

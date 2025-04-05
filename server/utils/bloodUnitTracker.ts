@@ -1,4 +1,4 @@
-interface BloodUnit {
+export interface BloodUnit {
   unitId: string;
   bloodType: string;
   donationDate: Date;

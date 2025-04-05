@@ -1,13 +1,13 @@
 import './Header.css';
-
+import {Link} from 'react-router-dom'
 function Header() {
   return (
     <header className="header">
       <div className="logo">LifeFlow</div>
       <nav className="nav-links">
-        <a href="#">Home</a>
-        <a href="#">Find Donors</a>
-        <a href="#">Donate blood</a>
+        <Link to='/'>Home</Link>
+        <Link to='/signinPage'>Find Donors</Link>
+        <Link to='/signinPage'>Donate blood</Link>
         <a href="#">About Us</a>
       </nav>
       <div className="auth-buttons">

@@ -7,9 +7,13 @@ import { MdPersonAdd } from "react-icons/md";
 import { GiWaterDrop } from "react-icons/gi";
 import { FaHeart } from "react-icons/fa";
 import donationImage from '../../assets/donation.png';
-import { FaHospital } from "react-icons/fa";
+import {useNavigate} from 'react-router-dom'
 
 function HomePage() {
+  const navigate = useNavigate();
+  const handleSignIn = () => {
+    navigate('/signinPage');
+  }
   return (
     <div className="lifeflow-app">
      
@@ -22,9 +26,9 @@ function HomePage() {
               <h1 className="hero-title">Be the reason someone lives today.</h1>
               <p className="hero-subtitle">Find donors, request blood, or schedule your next donation.</p>
               <div className="hero-buttons">
-                <button className="btn btn-danger me-3">Become a Donor</button>
-                <button className="btn btn-outline-danger me-3">Request Blood</button>
-                <button className="btn btn-dark">Find Blood Banks</button>
+                <button className="btn btn-danger me-3" onClick={handleSignIn}>Become a Donor</button>
+                <button className="btn btn-outline-danger me-3" onClick={handleSignIn}>Request Blood</button>
+                <button className="btn btn-dark" onClick={handleSignIn}>Find Blood Banks</button>
               </div>
             </div>
           </div>

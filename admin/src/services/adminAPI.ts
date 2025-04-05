@@ -64,7 +64,7 @@ export const adminAPI = {
     return response.data;
   },
 
-  manageHospital: async (hospitalId: string, updates: any) => {
+  manageHospital: async (hospitalId: string, updates: never) => {
     const response = await axios.put(`${API_URL}/admin/hospitals/${hospitalId}`, updates);
     return response.data;
   },
@@ -75,7 +75,7 @@ export const adminAPI = {
     return response.data;
   },
 
-  manageDonor: async (donorId: string, updates: any) => {
+  manageDonor: async (donorId: string, updates: never) => {
     const response = await axios.put(`${API_URL}/admin/donors/${donorId}`, updates);
     return response.data;
   }

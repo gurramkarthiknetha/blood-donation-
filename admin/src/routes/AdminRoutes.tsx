@@ -30,6 +30,8 @@ const AdminRoutes = () => {
             <Navigate to="/dashboard" replace />
           ) : (
             <Login />
+			// <Dashboard />
+			// <AdminLayout />
           )
         }
       />

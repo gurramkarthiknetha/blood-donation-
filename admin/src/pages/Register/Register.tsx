@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AxiosError } from 'axios';
 import {
   Box,
   Paper,
@@ -35,9 +36,10 @@ const Register = () => {
 
     try {
       await adminAPI.register(data);
-      navigate('/login', { state: { message: 'Registration successful. Please login.' } });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+    } catch (err: unknown) {
+      const axiosError = err as AxiosError<{ message: string }>;
+      setError(axiosError.response?.data?.message || 'Registration failed');
+      // setError(err?.response?.data?.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }

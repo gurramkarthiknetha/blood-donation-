@@ -27,8 +27,8 @@ const Login = () => {
       login(response.token);
       const from = location.state?.from?.pathname || '/dashboard';
       navigate(from, { replace: true });
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+    } catch {
+      setError('Login failed');
     } finally {
       setIsLoading(false);
     }

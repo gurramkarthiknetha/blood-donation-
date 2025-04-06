@@ -26,7 +26,7 @@ function Header() {
             <li className="nav-item">
               <Link className="nav-link" to="/">Home</Link>
             </li>
-            {isAuthenticated && userRole === 'donor' && (
+            {!isAuthenticated && userRole !== 'donor' && (
               <>
                 <li className="nav-item">
                   <Link className="nav-link" to="/donor">Dashboard</Link>
@@ -35,7 +35,10 @@ function Header() {
                   <Link className="nav-link" to="/bloodCamp">Blood Camps</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/reedemPage">Rewards</Link>
+                  <Link className="nav-link" to="/redeemPage">Rewards</Link>
+                </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/chartbot">Chatbot</Link>
                 </li>
               </>
             )}

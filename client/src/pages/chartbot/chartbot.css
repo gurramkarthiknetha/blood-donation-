@@ -1,0 +1,44 @@
+.chartbot-container {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+.info-section {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background: 
+                url('https://img.freepik.com/free-vector/call-center-isometric-concept_1284-69078.jpg?t=st=1743911165~exp=1743914765~hmac=7cacf81d489fac156fe98e700ba855960b2fb13cf52f95beed5236616db1b439&w=1380');
+    background-size: cover;
+    background-position: center;
+    color: #333;
+}
+
+.info-image {
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+}
+
+.info-content {
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 2rem;
+    border-radius: 8px;
+}
+
+.chatbot-section {
+    flex: 1;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: linear-gradient(rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.95)),
+                url('https://img.freepik.com/free-vector/call-center-isometric-concept_1284-69078.jpg?t=st=1743911165~exp=1743914765~hmac=7cacf81d489fac156fe98e700ba855960b2fb13cf52f95beed5236616db1b439&w=1380');
+    background-size: cover;
+    background-position: center;
+}

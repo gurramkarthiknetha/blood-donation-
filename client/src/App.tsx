@@ -15,6 +15,7 @@ import { useEffect } from 'react';
 import { NotificationComponent } from './components/NotificationComponent';
 import { wsService } from './services/websocketService';
 import { WebSocketErrorBoundary } from './components/WebSocketErrorBoundary';
+import Chartbot from './pages/chartbot/Chartbot';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, allowedRoles?: string[] }) => {
   const isAuthenticated = authService.isAuthenticated();
@@ -61,18 +62,20 @@ function App() {
           path: '/'
         },
         {
+          element: <Chartbot />,
+          path: '/chartbot'
+        },
+        {
           element: (
-            <ProtectedRoute allowedRoles={['donor']}>
               <Donor />
-            </ProtectedRoute>
           ),
           path: '/donor'
         },
         {
           element: (
-            <ProtectedRoute allowedRoles={['hospital']}>
-              <Reciever totalRequests={0} unitsReceived={0} />
-            </ProtectedRoute>
+            // <ProtectedRoute allowedRoles={['hospital']}>
+              <Reciever  />
+            // </ProtectedRoute>
           ),
           path: '/receiver'
         },
@@ -82,9 +85,9 @@ function App() {
         },
         {
           element: (
-            <ProtectedRoute allowedRoles={['donor', 'hospital']}>
+            
               <BloodCamp />
-            </ProtectedRoute>
+            
           ),
           path: '/bloodCamp'
         },

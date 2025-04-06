@@ -35,7 +35,7 @@ function Header() {
                   <Link className="nav-link" to="/bloodCamp">Blood Camps</Link>
                 </li>
                 <li className="nav-item">
-                  <Link className="nav-link" to="/redeemPage">Rewards</Link>
+                  <Link className="nav-link" to="/reedemPage">Rewards</Link>
                 </li>
                 <li className="nav-item">
                   <Link className="nav-link" to="/chartbot">Chatbot</Link>

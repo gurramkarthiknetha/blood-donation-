@@ -96,9 +96,7 @@ function App() {
         },
         {
           element: (
-            <ProtectedRoute allowedRoles={['donor']}>
               <ReedemPage />
-            </ProtectedRoute>
           ),
           path: '/reedemPage'
         },

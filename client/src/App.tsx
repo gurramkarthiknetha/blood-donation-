@@ -11,11 +11,12 @@ import ReedemPage from './pages/reedemPage/ReedemPage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import SignupPage from './pages/signupPage/SignupPage';
 import { authService } from './services/authService';
-import { useEffect } from 'react';
+import { JSX, useEffect } from 'react';
 import { NotificationComponent } from './components/NotificationComponent';
 import { wsService } from './services/websocketService';
 import { WebSocketErrorBoundary } from './components/WebSocketErrorBoundary';
 import Chartbot from './pages/chartbot/Chartbot';
+import Map from './pages/map/Map';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, allowedRoles?: string[] }) => {
   const isAuthenticated = authService.isAuthenticated();
@@ -66,6 +67,10 @@ function App() {
           path: '/chartbot'
         },
         {
+          element:<Map />,
+          path: '/map'
+        },
+        {
           element: (
               <Donor />
           ),
@@ -85,9 +90,7 @@ function App() {
         },
         {
           element: (
-            
               <BloodCamp />
-            
           ),
           path: '/bloodCamp'
         },

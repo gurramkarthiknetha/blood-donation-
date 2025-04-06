@@ -40,6 +40,9 @@ function Header() {
                 <li className="nav-item">
                   <Link className="nav-link" to="/chartbot">Chatbot</Link>
                 </li>
+                <li>
+                  <Link className="nav-link" to="/map">Map</Link>
+                </li>
               </>
             )}
             {isAuthenticated && userRole === 'hospital' && (

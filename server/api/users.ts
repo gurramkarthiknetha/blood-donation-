@@ -38,7 +38,8 @@ router.post('/register', async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'Registration successful' });
   } catch (error) {
-    res.status(500).json({ message: 'Registration failed', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Registration failed';
+    res.status(500).json({ message: 'Registration failed', error: errorMessage });
   }
 });
 
@@ -81,7 +82,8 @@ router.post('/login', async (req, res) => {
         role: user.role
       });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed', error: error.message });
+    const errorMessage = error instanceof Error ? error.message : 'Login failed';
+    res.status(500).json({ message: 'Login failed', error: errorMessage });
   }
 });
 

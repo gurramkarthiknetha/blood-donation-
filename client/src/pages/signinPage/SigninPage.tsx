@@ -1,43 +1,48 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../../services/authService';
-import { toastService } from '../../services/toastService';
-import { wsService } from '../../services/websocketService';
+import axios from 'axios';
 import './SignInPage.css';
 
 function SignInPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState('donor');
+  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e :any) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
 
     try {
-      const response = await authService.login({
+      const response = await axios.post('http://localhost:5000/api/login', {
         ...formData,
         role: userType
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      // Initialize WebSocket connection after successful login
-      wsService.connect();
-
-      toastService.success('Login successful!');
-      navigate(userType === 'donor' ? '/donor' :
-              userType === 'hospital' ? '/hospital' : '/admin');
-    } catch (error) {
-      toastService.error(error.response?.data?.message || 'Login failed. Please try again.');
+      if (response.data.role) {
+        navigate(
+          response.data.role === 'donor' ? '/donor' :
+          response.data.role === 'hospital' ? '/hospital' : '/admin'
+        );
+      }
+    } catch (error : any) {
+      setError(error.response?.data?.message || 'An error occurred during login');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleChange = (e) => {
+  const handleChange = (e :any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -51,6 +56,8 @@ function SignInPage() {
           <h1>Sign In</h1>
           <p>Welcome back! Please login to your account</p>
         </div>
+        
+        {error && <div className="error-message">{error}</div>}
         
         <form onSubmit={handleSubmit} className="signin-form">
           <div className="form-group">

@@ -1,4 +1,7 @@
+import axios from 'axios';
 import { api } from '../config/api';
+
+const API_URL = 'http://localhost:5000/api';
 
 interface LoginCredentials {
   email: string;
@@ -16,12 +19,21 @@ class AuthService {
   }
 
   async login(credentials: LoginCredentials) {
-    const response = await api.post(`/${credentials.role}/login`, credentials);
-    const { token, role, user } = response.data;
-    localStorage.setItem('token', token);
-    localStorage.setItem('userRole', role);
-    localStorage.setItem('user', JSON.stringify(user));
-    return response.data;
+    try {
+      const response = await axios.post(`${API_URL}/login`, credentials, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      const { token, role, user } = response.data;
+      localStorage.setItem('token', token);
+      localStorage.setItem('userRole', role);
+      localStorage.setItem('user', JSON.stringify(user));
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { message: 'Login failed' };
+    }
   }
 
   getToken() {
@@ -47,6 +59,19 @@ class AuthService {
     return api.post('/hospital/register', data);
   }
 
+  async register(userData: any) {
+    try {
+      const response = await axios.post(`${API_URL}/register`, userData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data;
+    } catch (error: any) {
+      throw error.response?.data || { message: 'Registration failed' };
+    }
+  }
+
   logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
@@ -55,3 +80,4 @@ class AuthService {
 }
 
 export const authService = new AuthService();
+export default authService;

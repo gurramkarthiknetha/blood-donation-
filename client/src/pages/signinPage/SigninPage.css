@@ -8,6 +8,15 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.error-message {
+  background-color: #ffebee;
+  color: #c62828;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
 .signin-card {
   width: 100%;
   max-width: 450px;
@@ -127,7 +136,7 @@
 }
 
 .signin-btn:disabled {
-  background-color: #e1e1e1;
+  background-color: #cccccc;
   cursor: not-allowed;
 }
 

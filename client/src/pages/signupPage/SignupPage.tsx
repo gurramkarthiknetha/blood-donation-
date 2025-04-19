@@ -1,65 +1,77 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { authService } from '../../services/authService';
-import { toastService } from '../../services/toastService';
+import axios from 'axios';
 import './SignupPage.css';
+
+interface FormData {
+  fullName: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  phoneNumber: string;
+  bloodGroup: string;
+  address: string;
+}
 
 function SignupPage() {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [userType, setUserType] = useState('donor');
-  const [formData, setFormData] = useState({
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState<FormData>({
     fullName: '',
     email: '',
     password: '',
     confirmPassword: '',
-    bloodGroup: '',
     phoneNumber: '',
-    address: '',
-    location: {
-      type: 'Point',
-      coordinates: [] as number[]
-    }
+    bloodGroup: '',
+    address: ''
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     if (formData.password !== formData.confirmPassword) {
-      toastService.error('Passwords do not match');
+      setError('Passwords do not match');
       return;
     }
 
     setIsLoading(true);
     try {
-      const registrationData = {
-        ...formData,
-        role: userType
-      };
+      const { confirmPassword, ...registrationData } = formData;
+      const response = await axios.post(
+        'http://localhost:5000/api/register',
+        {
+          ...registrationData,
+          role: userType
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
+        }
+      );
 
-      if (userType === 'donor') {
-        await authService.registerDonor(registrationData);
-        toastService.success('Registration successful! Please sign in.');
-        navigate('/signin');
-      } else if (userType === 'hospital') {
-        await authService.registerHospital(registrationData);
-        toastService.success('Registration successful! Please sign in.');
+      if (response.status === 201) {
         navigate('/signin');
       }
     } catch (error: any) {
-      toastService.error(error.response?.data?.message || 'Registration failed. Please try again.');
+      console.error('Registration error:', error);
+      setError(error.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
-  console.log(handleSubmit)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
-  console.log(formData)
+
   const bloodTypes = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
   return (

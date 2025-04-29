@@ -11,6 +11,7 @@
     "setup": "npm install bootstrap react-router-dom react-icons && npm install --save-dev @vitejs/plugin-react eslint eslint-plugin-react-hooks eslint-plugin-react-refresh typescript @types/react @types/react-dom"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.30.0",
     "@mui/material": "^7.0.2",
     "axios": "^1.8.4",
     "bootstrap": "^5.3.5",

@@ -3,7 +3,8 @@ import bcrypt from 'bcrypt';
 
 interface IUser extends Document {
   email: string;
-  password: string;
+  password?: string; // Optional for Clerk users
+  clerkId?: string; // Clerk user ID
   role: 'donor' | 'hospital' | 'admin';
   fullName: string;
   phoneNumber: string;
@@ -13,6 +14,9 @@ interface IUser extends Document {
     type: string;
     coordinates: number[];
   };
+  lastDonationDate?: Date;
+  totalDonations?: number;
+  rewardPoints?: number;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -27,7 +31,14 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   password: {
     type: String,
-    required: true
+    required: function(this: IUser) {
+      return !this.clerkId; // Password is required only for non-Clerk users
+    }
+  },
+  clerkId: {
+    type: String,
+    sparse: true, // Allows null/undefined values
+    unique: true
   },
   role: {
     type: String,
@@ -40,7 +51,7 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   bloodGroup: {
     type: String,
-    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'],
+    enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-', 'Unknown'],
     required: function(this: IUser) {
       return this.role === 'donor';
     }
@@ -59,12 +70,23 @@ const userSchema = new mongoose.Schema<IUser>({
       type: [Number],
       default: [0, 0]
     }
+  },
+  lastDonationDate: {
+    type: Date
+  },
+  totalDonations: {
+    type: Number,
+    default: 0
+  },
+  rewardPoints: {
+    type: Number,
+    default: 0
   }
 }, { timestamps: true });
 
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
-  
+  if (!this.isModified('password') || !this.password) return next();
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

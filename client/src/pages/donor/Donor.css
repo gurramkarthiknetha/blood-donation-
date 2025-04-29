@@ -1,3 +1,46 @@
+/* Loading Styles */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  text-align: center;
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+  font-size: 2rem;
+  color: #d64141;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Auth Container Styles */
+.auth-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.auth-container h1 {
+  margin-bottom: 30px;
+  color: #d64141;
+}
+
+.clerk-auth-wrapper {
+  margin: 0 auto;
+  max-width: 500px;
+}
+
 /* Global Styles */
 .donor-dashboard {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -42,6 +85,27 @@ h2 {
 .highlight-date {
   color: #d64141;
   font-weight: 500;
+}
+
+.edit-profile-btn {
+  background-color: transparent;
+  color: #666;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-profile-btn:hover {
+  background-color: #f0f0f0;
+  color: #d64141;
+  border-color: #d64141;
 }
 
 .eligibility-btn {
@@ -366,12 +430,12 @@ h2 {
     align-items: flex-start;
     gap: 15px;
   }
-  
+
   .stats-container {
     grid-template-columns: 1fr;
     gap: 15px;
   }
-  
+
   .dashboard-content {
     grid-template-columns: 1fr;
   }

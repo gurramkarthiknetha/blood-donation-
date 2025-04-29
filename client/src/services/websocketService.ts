@@ -12,11 +12,11 @@ class WebSocketService {
 
   connect() {
     if (this.socket?.connected || this.isConnecting) return;
-    
+
     this.isConnecting = true;
     const token = authService.getToken();
-    
-    this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:4000', {
+
+    this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5001', {
       auth: { token },
       withCredentials: true,
       reconnectionAttempts: this.maxReconnectAttempts,
@@ -51,7 +51,7 @@ class WebSocketService {
     this.socket.on('disconnect', (reason) => {
       console.log('Disconnected from WebSocket:', reason);
       this.isConnecting = false;
-      
+
       if (reason === 'io server disconnect') {
         // Server initiated disconnect, attempt reconnect
         setTimeout(() => this.connect(), this.reconnectDelay);

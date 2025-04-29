@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { api } from '../config/api';
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5001/api';
 
 interface LoginCredentials {
   email: string;

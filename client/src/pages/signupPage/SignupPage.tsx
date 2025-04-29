@@ -41,7 +41,7 @@ function SignupPage() {
     try {
       const { confirmPassword, ...registrationData } = formData;
       const response = await axios.post(
-        'http://localhost:5000/api/register',
+        'http://localhost:5001/api/register',
         {
           ...registrationData,
           role: userType
@@ -81,18 +81,18 @@ function SignupPage() {
           <h1>Create Account</h1>
           <p>Join our blood donation community</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="signup-form">
           <div className="form-group">
             <div className="user-type-selector">
-              <button 
+              <button
                 type="button"
                 className={`type-btn ${userType === 'donor' ? 'active' : ''}`}
                 onClick={() => setUserType('donor')}
               >
                 Donor
               </button>
-              <button 
+              <button
                 type="button"
                 className={`type-btn ${userType === 'hospital' ? 'active' : ''}`}
                 onClick={() => setUserType('hospital')}
@@ -199,8 +199,8 @@ function SignupPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             className="signup-btn"
             disabled={isLoading}
           >

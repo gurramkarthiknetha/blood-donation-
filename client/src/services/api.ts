@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const baseURL = 'http://localhost:4000/api';
-const wsURL = 'ws://localhost:4000';
+const baseURL = 'http://localhost:5001/api';
+const wsURL = 'ws://localhost:5001';
 
 export const socket = io(wsURL, {
   autoConnect: false
@@ -18,7 +18,7 @@ export const authService = {
     const response = await api.post('/auth/login', credentials);
     return response.data;
   },
-  
+
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
     return response.data;
@@ -30,7 +30,7 @@ export const donorService = {
     const response = await api.post('/donor/donate', donationData);
     return response.data;
   },
-  
+
   getHistory: async () => {
     const response = await api.get('/donor/history');
     return response.data;
@@ -42,7 +42,7 @@ export const hospitalService = {
     const response = await api.post('/hospital/request', requestData);
     return response.data;
   },
-  
+
   getInventory: async () => {
     const response = await api.get('/hospital/inventory');
     return response.data;

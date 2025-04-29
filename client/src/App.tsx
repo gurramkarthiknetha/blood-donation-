@@ -17,6 +17,8 @@ import { wsService } from './services/websocketService';
 import { WebSocketErrorBoundary } from './components/WebSocketErrorBoundary';
 import Chartbot from './pages/chartbot/Chartbot';
 import Map from './pages/map/Map';
+import { ClerkProvider } from './context/ClerkProvider';
+import { SignIn, SignUp, useAuth, useUser } from '@clerk/clerk-react';
 
 const ProtectedRoute = ({ children, allowedRoles }: { children: JSX.Element, allowedRoles?: string[] }) => {
   const isAuthenticated = authService.isAuthenticated();
@@ -38,7 +40,7 @@ function App() {
     if (authService.isAuthenticated()) {
       wsService.connect();
     }
-    
+
     return () => {
       wsService.disconnect();
     };
@@ -121,10 +123,10 @@ function App() {
   ]);
 
   return (
-    <>
+    <ClerkProvider>
       <RouterProvider router={browserRouterObj} />
       <ToastContainer position="top-right" autoClose={3000} />
-    </>
+    </ClerkProvider>
   );
 }
 

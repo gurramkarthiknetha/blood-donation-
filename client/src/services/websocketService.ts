@@ -62,22 +62,30 @@ class WebSocketService {
   private setupEventListeners() {
     if (!this.socket) return;
 
+    // Static event handlers for real-time updates
+    // These events correspond to the static features exposed by the backend
+
+    // Inventory updates
     this.socket.on('inventory_update', (data) => {
       this.triggerHandlers('inventory_update', data);
     });
 
+    // Blood request notifications
     this.socket.on('blood_request', (data) => {
       this.triggerHandlers('blood_request', data);
     });
 
+    // General notifications
     this.socket.on('notification', (data) => {
       this.triggerHandlers('notification', data);
     });
 
+    // Donation status updates
     this.socket.on('donation_status', (data) => {
       this.triggerHandlers('donation_status', data);
     });
 
+    // Slot availability updates
     this.socket.on('slot_availability', (data) => {
       this.triggerHandlers('slot_availability', data);
     });

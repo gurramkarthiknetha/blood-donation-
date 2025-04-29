@@ -39,8 +39,10 @@ const HospitalRequests: React.FC = () => {
     fetchRequests();
   }, []);
 
+  // Fetch requests from static backend endpoint
   const fetchRequests = async () => {
     try {
+      // Use static endpoint to get all blood requests
       const data = await adminAPI.getAllRequests();
       setRequests(data);
     } catch (error) {
@@ -48,9 +50,12 @@ const HospitalRequests: React.FC = () => {
     }
   };
 
+  // Handle request approval using static backend endpoint
   const handleApprove = async (request: BloodRequest) => {
     try {
+      // Call static endpoint to approve request
       await adminAPI.approveRequest(request._id, request.hospitalId);
+      // Refresh requests from static endpoint
       fetchRequests();
     } catch (error) {
       console.error('Error approving request:', error);
@@ -62,13 +67,17 @@ const HospitalRequests: React.FC = () => {
     setRejectDialogOpen(true);
   };
 
+  // Handle request rejection confirmation using static backend endpoint
   const handleRejectConfirm = async () => {
     if (selectedRequest && rejectReason) {
       try {
+        // Call static endpoint to reject request
         await adminAPI.rejectRequest(selectedRequest._id, selectedRequest.hospitalId, rejectReason);
+        // Reset UI state
         setRejectDialogOpen(false);
         setRejectReason('');
         setSelectedRequest(null);
+        // Refresh requests from static endpoint
         fetchRequests();
       } catch (error) {
         console.error('Error rejecting request:', error);

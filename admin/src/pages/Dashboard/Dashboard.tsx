@@ -48,13 +48,16 @@ const Dashboard: React.FC = () => {
     fetchDashboardData();
   }, []);
 
+  // Fetch dashboard data from static backend endpoints
   const fetchDashboardData = async () => {
     try {
+      // Use static endpoints to fetch dashboard data
       const [statsData, requestsData] = await Promise.all([
-        adminAPI.getDashboardStats(),
-        adminAPI.getAllRequests()
+        adminAPI.getDashboardStats(), // Static endpoint for dashboard stats
+        adminAPI.getAllRequests()     // Static endpoint for blood requests
       ]);
 
+      // Update state with data from static endpoints
       setStats(statsData);
       setBloodRequests(requestsData);
     } catch (error) {
@@ -64,18 +67,24 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  // Handle request approval using static backend endpoint
   const handleApproveRequest = async (requestId: string, hospitalId: string) => {
     try {
+      // Call static endpoint to approve request
       await adminAPI.approveRequest(requestId, hospitalId);
+      // Refresh dashboard data from static endpoints
       fetchDashboardData();
     } catch (error) {
       console.error('Error approving request:', error);
     }
   };
 
+  // Handle request rejection using static backend endpoint
   const handleRejectRequest = async (requestId: string, hospitalId: string) => {
     try {
+      // Call static endpoint to reject request
       await adminAPI.rejectRequest(requestId, hospitalId, 'Request rejected by admin');
+      // Refresh dashboard data from static endpoints
       fetchDashboardData();
     } catch (error) {
       console.error('Error rejecting request:', error);

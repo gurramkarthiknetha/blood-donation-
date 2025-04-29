@@ -1,87 +1,83 @@
-import React from 'react';
-import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaHospital } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaMapMarkerAlt, FaCalendarAlt, FaUsers, FaHospital, FaSpinner } from 'react-icons/fa';
 import './BloodCamp.css';
-
-interface BloodDrive {
-  id: string;
-  name: string;
-  location: string;
-  date: string;
-  timeRange: string;
-  slots: {
-    remaining: number;
-    total: number;
-  };
-  host: string;
-  status: 'Available' | 'Few Slots Left' | 'Fully Booked';
-}
-
-interface Registration {
-  campName: string;
-  dateTime: string;
-  status: 'Registered' | 'Attended';
-  action: 'Cancel' | 'View Certificate';
-}
+import { eventService, BloodDrive, Registration } from '../../services/eventService';
+import { toastService } from '../../services/toastService';
 
 const BloodCamp: React.FC = () => {
-  // Sample data for blood drives
-  const upcomingCamps: BloodDrive[] = [
-    {
-      id: '1',
-      name: 'RedDrop Blood Drive – City Mall',
-      location: '123 City Mall, Downtown',
-      date: 'April 25, 2025',
-      timeRange: '9:00 AM - 5:00 PM',
-      slots: {
-        remaining: 45,
-        total: 80
-      },
-      host: 'City Blood Bank',
-      status: 'Available'
-    },
-    {
-      id: '2',
-      name: 'Community Blood Drive-park',
-      location: 'Central Park Community Center',
-      date: 'May 2, 2025',
-      timeRange: '10:00 AM - 4:00 PM',
-      slots: {
-        remaining: 5,
-        total: 50
-      },
-      host: 'Red Cross',
-      status: 'Few Slots Left'
-    },
-    {
-      id: '3',
-      name: 'University Blood Drive',
-      location: 'State University Campus',
-      date: 'May 10, 2025',
-      timeRange: '9:00 AM - 3:00 PM',
-      slots: {
-        remaining: 0,
-        total: 60
-      },
-      host: 'University Health Center',
-      status: 'Fully Booked'
-    }
-  ];
+  const [upcomingCamps, setUpcomingCamps] = useState<BloodDrive[]>([]);
+  const [myRegistrations, setMyRegistrations] = useState<Registration[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [registering, setRegistering] = useState<boolean>(false);
+  const [selectedBloodType, setSelectedBloodType] = useState<string>('');
+  const [showBloodTypeModal, setShowBloodTypeModal] = useState<boolean>(false);
+  const [selectedEventId, setSelectedEventId] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [filterDate, setFilterDate] = useState<string>('');
 
-  // Sample data for registrations
-  const myRegistrations: Registration[] = [
-    {
-      campName: 'RedDrop Blood Drive',
-      dateTime: 'April 25, 2025 • 10:30 AM',
-      status: 'Registered',
-      action: 'Cancel'
-    },
-    {
-      campName: 'Downtown Medical Center',
-      dateTime: 'March 15, 2025 • 2:00 PM',
-      status: 'Attended',
-      action: 'View Certificate'
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // Fetch events and registrations
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [eventsData, registrationsData] = await Promise.all([
+        eventService.getUpcomingEvents(),
+        eventService.getUserRegistrations()
+      ]);
+
+      setUpcomingCamps(eventsData);
+      setMyRegistrations(registrationsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toastService.error('Failed to load blood donation camps');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Handle registration
+  const handleRegister = async (eventId: string) => {
+    setSelectedEventId(eventId);
+    setShowBloodTypeModal(true);
+  };
+
+  // Confirm registration with blood type
+  const confirmRegistration = async () => {
+    if (!selectedBloodType) {
+      toastService.warning('Please select your blood type');
+      return;
+    }
+
+    try {
+      setRegistering(true);
+      await eventService.registerForEvent(selectedEventId, selectedBloodType);
+      toastService.success('Successfully registered for the blood donation camp');
+      setShowBloodTypeModal(false);
+      setSelectedBloodType('');
+      fetchData(); // Refresh data
+    } catch (error: any) {
+      toastService.error(error.response?.data?.message || 'Failed to register for the camp');
+    } finally {
+      setRegistering(false);
+    }
+  };
+
+  // Handle cancellation
+  const handleCancel = async (eventId: string) => {
+    if (window.confirm('Are you sure you want to cancel your registration?')) {
+      try {
+        await eventService.cancelRegistration(eventId);
+        toastService.success('Registration cancelled successfully');
+        fetchData(); // Refresh data
+      } catch (error) {
+        toastService.error('Failed to cancel registration');
+      }
+    }
+  };
 
   const getStatusClass = (status: string): string => {
     if (status === 'Available') return 'status-available';
@@ -97,96 +93,192 @@ const BloodCamp: React.FC = () => {
     return '';
   };
 
+  // Filter camps based on search term and date
+  const filteredCamps = upcomingCamps.filter(camp => {
+    const matchesSearch = searchTerm === '' ||
+      camp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      camp.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      camp.host.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesDate = filterDate === '' ||
+      new Date(camp.date).toISOString().split('T')[0] === filterDate;
+
+    return matchesSearch && matchesDate;
+  });
+
   return (
     <div className="blood-donation-container">
       {/* Search and Filter Section */}
       <div className="search-filter-section">
         <div className="search-bar">
           <FaMapMarkerAlt className="icon" />
-          <input type="text" placeholder="Search by city or location" />
+          <input
+            type="text"
+            placeholder="Search by name or location"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="filter-options">
-          <input type="text" placeholder="mm/dd/yyyy" className="date-input" />
-          <select className="blood-group-select">
-            <option>All Blood Groups</option>
-          </select>
-          <button className="map-view-btn">
-            <span className="map-icon">⬚</span> Map View
+          <input
+            type="date"
+            className="date-input"
+            value={filterDate}
+            onChange={(e) => setFilterDate(e.target.value)}
+          />
+          <button
+            className="clear-filter-btn"
+            onClick={() => {
+              setSearchTerm('');
+              setFilterDate('');
+            }}
+          >
+            Clear Filters
           </button>
         </div>
       </div>
 
-      {/* Upcoming Camps Section */}
-      <section className="upcoming-camps-section">
-        <h2>Upcoming Blood Donation Camps</h2>
-        <div className="camps-grid">
-          {upcomingCamps.map((camp) => (
-            <div key={camp.id} className="camp-card">
-              <div className="camp-header">
-                <h3>{camp.name}</h3>
-                <span className={`status-badge ${getStatusClass(camp.status)}`}>
-                  {camp.status}
-                </span>
+      {/* Loading State */}
+      {loading ? (
+        <div className="loading-container">
+          <FaSpinner className="spinner" />
+          <p>Loading blood donation camps...</p>
+        </div>
+      ) : (
+        <>
+          {/* Upcoming Camps Section */}
+          <section className="upcoming-camps-section">
+            <h2>Upcoming Blood Donation Camps</h2>
+            {filteredCamps.length > 0 ? (
+              <div className="camps-grid">
+                {filteredCamps.map((camp) => (
+                  <div key={camp.id} className="camp-card">
+                    <div className="camp-header">
+                      <h3>{camp.name}</h3>
+                      <span className={`status-badge ${getStatusClass(camp.status)}`}>
+                        {camp.status}
+                      </span>
+                    </div>
+                    <div className="camp-details">
+                      <div className="detail-item">
+                        <FaMapMarkerAlt className="detail-icon" />
+                        <span>{camp.location}</span>
+                      </div>
+                      <div className="detail-item">
+                        <FaCalendarAlt className="detail-icon" />
+                        <span>{camp.date} • {camp.timeRange}</span>
+                      </div>
+                      <div className="detail-item">
+                        <FaUsers className="detail-icon" />
+                        <span>
+                          {camp.slots.remaining}/{camp.slots.total} slots remaining
+                        </span>
+                      </div>
+                      <div className="detail-item">
+                        <FaHospital className="detail-icon" />
+                        <span>Hosted by: {camp.host}</span>
+                      </div>
+                    </div>
+                    <button
+                      className="register-button"
+                      disabled={camp.status === 'Fully Booked'}
+                      onClick={() => handleRegister(camp.id)}
+                    >
+                      {camp.status === 'Fully Booked' ? 'Fully Booked' : 'Register to Donate'}
+                    </button>
+                  </div>
+                ))}
               </div>
-              <div className="camp-details">
-                <div className="detail-item">
-                  <FaMapMarkerAlt className="detail-icon" />
-                  <span>{camp.location}</span>
-                </div>
-                <div className="detail-item">
-                  <FaCalendarAlt className="detail-icon" />
-                  <span>{camp.date} • {camp.timeRange}</span>
-                </div>
-                <div className="detail-item">
-                  <FaUsers className="detail-icon" />
-                  <span>
-                    {camp.slots.remaining}/{camp.slots.total} slots remaining
-                  </span>
-                </div>
-                <div className="detail-item">
-                  <FaHospital className="detail-icon" />
-                  <span>Hosted by: {camp.host}</span>
-                </div>
+            ) : (
+              <div className="no-results">
+                <p>No blood donation camps found matching your criteria</p>
               </div>
-              <button 
-                className="register-button"
-                disabled={camp.status === 'Fully Booked'}
+            )}
+          </section>
+
+          {/* My Registrations Section */}
+          <section className="my-registrations-section">
+            <h2>My Camp Registrations</h2>
+            {myRegistrations.length > 0 ? (
+              <div className="registrations-table">
+                <div className="table-header">
+                  <div className="col camp-name">Camp Name</div>
+                  <div className="col date-time">Date & Time</div>
+                  <div className="col status">Status</div>
+                  <div className="col actions">Actions</div>
+                </div>
+                {myRegistrations.map((registration) => (
+                  <div key={registration.eventId} className="table-row">
+                    <div className="col camp-name">{registration.campName}</div>
+                    <div className="col date-time">{registration.dateTime}</div>
+                    <div className="col status">
+                      <span className={`status-badge ${getStatusClass(registration.status)}`}>
+                        {registration.status}
+                      </span>
+                    </div>
+                    <div className="col actions">
+                      <button
+                        className={`action-btn ${getActionClass(registration.action)}`}
+                        onClick={() => registration.action === 'Cancel'
+                          ? handleCancel(registration.eventId)
+                          : window.alert('Certificate viewing is not yet implemented')}
+                      >
+                        {registration.action}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-results">
+                <p>You haven't registered for any blood donation camps yet</p>
+              </div>
+            )}
+          </section>
+        </>
+      )}
+
+      {/* Blood Type Selection Modal */}
+      {showBloodTypeModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Select Your Blood Type</h3>
+            <select
+              value={selectedBloodType}
+              onChange={(e) => setSelectedBloodType(e.target.value)}
+              className="blood-type-select"
+            >
+              <option value="">Select Blood Type</option>
+              <option value="A+">A+</option>
+              <option value="A-">A-</option>
+              <option value="B+">B+</option>
+              <option value="B-">B-</option>
+              <option value="AB+">AB+</option>
+              <option value="AB-">AB-</option>
+              <option value="O+">O+</option>
+              <option value="O-">O-</option>
+            </select>
+            <div className="modal-actions">
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  setShowBloodTypeModal(false);
+                  setSelectedBloodType('');
+                }}
               >
-                {camp.status === 'Fully Booked' ? 'Fully Booked' : 'Register to Donate'}
+                Cancel
+              </button>
+              <button
+                className="confirm-btn"
+                onClick={confirmRegistration}
+                disabled={registering || !selectedBloodType}
+              >
+                {registering ? 'Registering...' : 'Confirm Registration'}
               </button>
             </div>
-          ))}
-        </div>
-      </section>
-
-      {/* My Registrations Section */}
-      <section className="my-registrations-section">
-        <h2>My Camp Registrations</h2>
-        <div className="registrations-table">
-          <div className="table-header">
-            <div className="col camp-name">Camp Name</div>
-            <div className="col date-time">Date & Time</div>
-            <div className="col status">Status</div>
-            <div className="col actions">Actions</div>
           </div>
-          {myRegistrations.map((registration, index) => (
-            <div key={index} className="table-row">
-              <div className="col camp-name">{registration.campName}</div>
-              <div className="col date-time">{registration.dateTime}</div>
-              <div className="col status">
-                <span className={`status-badge ${getStatusClass(registration.status)}`}>
-                  {registration.status}
-                </span>
-              </div>
-              <div className="col actions">
-                <button className={`action-btn ${getActionClass(registration.action)}`}>
-                  {registration.action}
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
-      </section>
+      )}
     </div>
   );
 };

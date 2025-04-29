@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { io } from 'socket.io-client';
 
-const baseURL = 'http://localhost:5001/api';
+const baseURL = 'http://localhost:5001';
 const wsURL = 'ws://localhost:5001';
 
 export const socket = io(wsURL, {

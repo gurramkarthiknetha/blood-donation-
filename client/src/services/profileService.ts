@@ -27,7 +27,9 @@ export interface DonationRecord {
 }
 
 class ProfileService {
-  // Get user profile with Clerk authentication
+  // Static API endpoints with Clerk authentication
+
+  // Get user profile with Clerk authentication - Static endpoint
   async getProfileWithClerk(clerkToken: string, userId: string, userEmail: string) {
     try {
       const response = await axios.get(`${import.meta.env.VITE_API_URL}/profile`, {
@@ -44,7 +46,7 @@ class ProfileService {
     }
   }
 
-  // Update user profile with Clerk authentication
+  // Update user profile with Clerk authentication - Static endpoint
   async updateProfileWithClerk(
     clerkToken: string,
     userId: string,
@@ -70,7 +72,7 @@ class ProfileService {
     }
   }
 
-  // Get donation history with Clerk authentication
+  // Get donation history with Clerk authentication - Static endpoint
   async getDonationHistoryWithClerk(clerkToken: string, userId: string, userEmail: string) {
     try {
       const response = await axios.get(
@@ -90,7 +92,7 @@ class ProfileService {
     }
   }
 
-  // Add donation record with Clerk authentication
+  // Add donation record with Clerk authentication - Static endpoint
   async addDonationWithClerk(
     clerkToken: string,
     userId: string,
@@ -116,7 +118,9 @@ class ProfileService {
     }
   }
 
-  // Get user profile with JWT authentication
+  // Static API endpoints with JWT authentication
+
+  // Get user profile with JWT authentication - Static endpoint
   async getProfile() {
     try {
       const response = await api.get('/api/profile');
@@ -127,7 +131,7 @@ class ProfileService {
     }
   }
 
-  // Update user profile with JWT authentication
+  // Update user profile with JWT authentication - Static endpoint
   async updateProfile(profileData: Partial<UserProfile>) {
     try {
       const response = await api.put('/api/profile', profileData);
@@ -138,7 +142,7 @@ class ProfileService {
     }
   }
 
-  // Get donation history with JWT authentication
+  // Get donation history with JWT authentication - Static endpoint
   async getDonationHistory() {
     try {
       const response = await api.get('/api/profile/donations');
@@ -149,7 +153,7 @@ class ProfileService {
     }
   }
 
-  // Add donation record with JWT authentication
+  // Add donation record with JWT authentication - Static endpoint
   async addDonation(donationData: Partial<DonationRecord>) {
     try {
       const response = await api.post('/api/profile/donations', donationData);

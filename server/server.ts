@@ -6,6 +6,8 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import userRoutes from './api/users';
 import profileRoutes from './api/profile';
+import eventRoutes from './api/events';
+import rewardRoutes from './api/rewards';
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -24,6 +26,8 @@ app.use(cookieParser());
 // API Routes
 app.use('/api', userRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/events', eventRoutes);
+app.use('/api/rewards', rewardRoutes);
 
 // Error handler
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

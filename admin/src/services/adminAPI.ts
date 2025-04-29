@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = 'http://localhost:5001/api';
+const baseURL = 'http://localhost:5001';
 const MAX_RETRIES = 3;
 const RETRY_DELAY = 1000;
 
@@ -13,6 +13,7 @@ const api = axios.create({
 const sleep = (ms: number | undefined) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const adminAPI = {
+  // Authentication - Static endpoint
   login: async (credentials: any) => {
     let retries = 0;
     while (retries < MAX_RETRIES) {
@@ -30,28 +31,48 @@ export const adminAPI = {
     }
   },
 
+  // Dashboard Statistics - Static endpoint
   getDashboardStats: async () => {
     const response = await api.get('/admin/dashboard/stats');
     return response.data;
   },
 
+  // Blood Requests Management - Static endpoints
   getRequests: async () => {
     const response = await api.get('/admin/requests');
     return response.data;
   },
 
-  approveRequest: async (requestId: any) => {
+  getAllRequests: async () => {
+    const response = await api.get('/admin/requests');
+    return response.data;
+  },
+
+  approveRequest: async (requestId: any, hospitalId?: any) => {
     const response = await api.put(`/admin/requests/${requestId}/approve`);
     return response.data;
   },
 
-  rejectRequest: async (requestId: any, reason: any) => {
+  rejectRequest: async (requestId: any, hospitalId?: any, reason?: any) => {
     const response = await api.put(`/admin/requests/${requestId}/reject`, { reason });
     return response.data;
   },
 
+  // Inventory Management - Static endpoint
   updateInventory: async (inventoryData: any) => {
     const response = await api.put('/admin/inventory', inventoryData);
+    return response.data;
+  },
+
+  // Hospital Management - Static endpoint
+  getHospitals: async () => {
+    const response = await api.get('/admin/hospitals');
+    return response.data;
+  },
+
+  // Donor Management - Static endpoint
+  getDonors: async () => {
+    const response = await api.get('/admin/donors');
     return response.data;
   }
 };

@@ -3,7 +3,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import RootLayout from './pages/rootLayout/RootLayout';
 import Home from './pages/home/Home';
-import Donor from './pages/donor/Donor';
+import DonorDashboard from './pages/donor/DonorDashboard';
 import Reciever from './pages/reciever/Reciever';
 import SigninPage from './pages/signinPage/SigninPage';
 import BloodCamp from './pages/bloodCamp/BloodCamp';
@@ -74,7 +74,7 @@ function App() {
         },
         {
           element: (
-              <Donor />
+              <DonorDashboard />
           ),
           path: '/donor'
         },
